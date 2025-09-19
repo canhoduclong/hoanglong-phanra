@@ -23,7 +23,8 @@
 	<script src="{{ asset('assets/js/vendor/visualization/d3/d3_tooltip.js') }}"></script>
 
 
-    <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script type="module" src="{{ asset('build/assets/app-DyJl0sfC.js') }}"></script>
+    {{-- Nếu dùng Vite, nhúng trực tiếp asset('build/assets/app-*.js') --}}
  	
 
     @stack('styles')

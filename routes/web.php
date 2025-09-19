@@ -1,4 +1,10 @@
+
+
 <?php
+
+// AJAX popup chọn khách hàng
+Route::get('customers/popup/search', [App\Http\Controllers\CustomerPopupController::class, 'search'])->name('customers.popup.search')->middleware('auth');
+Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupController::class, 'store'])->name('customers.popup.store')->middleware('auth');
 
 
 use App\Http\Controllers\AuthController;
@@ -31,6 +37,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    // AJAX lấy tổng tiền đơn hàng
+    Route::get('orders/ajax/total', [App\Http\Controllers\OrderAjaxController::class, 'total'])->name('orders.ajax.total');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Quản lý sản phẩm
