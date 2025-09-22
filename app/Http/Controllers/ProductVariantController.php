@@ -1,12 +1,45 @@
-<?php
-
-namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class ProductVariantController extends Controller
 {
+    public function duplicate(Request $request, $id)
+    {
+        $variant = ProductVariant::findOrFail($id);
+        if (!Gate::allows('duplicate', $variant)) {
+            abort(403, 'Bạn không có quyền nhân bản biến thể này.');
+        }
+        // Tạo bản sao
+        $new = $variant->replicate(['sku']);
+        // Tạo SKU mới (nếu trùng)
+        $new->sku = $variant->sku . '-COPY-' . strtoupper(Str::random(4));
+        $new->push();
+        // Copy media nếu có
+        if ($variant->mediaLink) {
+            $new->mediaLink()->create([
+                'media_id' => $variant->mediaLink->media_id,
+                'role' => 'variant',
+            ]);
+        }
+        // Copy các giá trị thuộc tính (nếu có)
+        if (method_exists($variant, 'values')) {
+            $new->values()->sync($variant->values->pluck('id')->toArray());
+        }
+        // Copy price rule cuối cùng
+        $latestPrice = $variant->latestPriceRule?->price;
+        if ($latestPrice) {
+            $new->priceRules()->create([
+                'price' => $latestPrice,
+                'start_date' => now(),
+                'reason' => 'Nhân bản từ biến thể #' . $variant->id,
+            ]);
+        }
+        return redirect()->route('product-variants.index')->with('success', 'Đã nhân bản biến thể thành công!');
+    }
     public function edit($id)
     {
         $variant = \App\Models\ProductVariant::findOrFail($id);
@@ -18,15 +51,28 @@ class ProductVariantController extends Controller
     {
         $variant = \App\Models\ProductVariant::findOrFail($id);
         $data = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'sometimes|exists:products,id',
             'sku' => 'required|string|unique:product_variants,sku,' . $variant->id,
             'size' => 'nullable|string',
             'quality' => 'nullable|string',
             'production_date' => 'nullable|date',
             'stock' => 'nullable|integer',
             'media_id' => 'nullable|integer|exists:media,id',
+            'price' => 'nullable|numeric|min:0',
         ]);
         $variant->update($data);
+        // Cập nhật giá nếu có thay đổi
+        if (isset($data['price'])) {
+            $latestPrice = $variant->latestPriceRule?->price;
+            if ($latestPrice != $data['price']) {
+                $variant->priceRules()->create([
+                    'price' => $data['price'],
+                    'start_date' => now(),
+                    'reason' => 'Cập nhật nhanh',
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
         // Gán lại media cho biến thể
         if (!empty($data['media_id'])) {
             \App\Models\MediaLink::updateOrCreate(

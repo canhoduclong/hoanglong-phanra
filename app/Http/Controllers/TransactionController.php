@@ -39,7 +39,28 @@ class TransactionController extends Controller
             'method' => 'nullable|string|max:50',
             'note' => 'nullable|string|max:255',
         ]);
-        Transaction::create($data);
+        $transaction = Transaction::create($data);
+
+        if ($transaction->order_id) {
+            $order = $transaction->order;
+            $totalPaid = $order->transactions()->where('type', 'payment')->sum('amount') - $order->transactions()->where('type', 'refund')->sum('amount');
+            $order->amount_paid = $totalPaid;
+
+            if ($totalPaid >= $order->total) {
+                $order->payment_status = 'paid';
+            } elseif ($totalPaid > 0) {
+                $order->payment_status = 'partially_paid';
+            } else {
+                $order->payment_status = 'unpaid';
+            }
+
+            if ($order->status === Order::STATUS_ORDER_PLACED) {
+                $order->status = Order::STATUS_ORDER_CONFIRMED;
+            }
+            
+            $order->save();
+        }
+
         return redirect()->route('transactions.index')->with('success', 'Giao dịch đã được ghi nhận.');
     }
 }

@@ -14,24 +14,26 @@ class Order extends Model
     public function transactions() { return $this->hasMany(Transaction::class); }
 
     // Trạng thái đơn hàng chuẩn
-    const STATUS_DRAFT = 'draft';
-    const STATUS_NEW = 'new';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_DELIVERING = 'delivering';
+    const STATUS_ORDER_PLACED = 'order_placed';
+    const STATUS_ORDER_CONFIRMED = 'order_confirmed';
+    const STATUS_PACKED = 'packed';
+    const STATUS_IN_DELIVERY = 'in_delivery';
     const STATUS_DELIVERED = 'delivered';
     const STATUS_COMPLETED = 'completed';
     const STATUS_RETURNED = 'returned';
+    const STATUS_CANCELLED = 'cancelled';
 
     public static function statusOptions()
     {
         return [
-            self::STATUS_DRAFT => 'Nháp',
-            self::STATUS_NEW => 'Tạo mới',
-            self::STATUS_PROCESSING => 'Đang xử lý',
-            self::STATUS_DELIVERING => 'Đang giao hàng',
+            self::STATUS_ORDER_PLACED => 'Đơn hàng đã đặt',
+            self::STATUS_ORDER_CONFIRMED => 'Đơn hàng đã xác nhận',
+            self::STATUS_PACKED => 'Đã đóng gói',
+            self::STATUS_IN_DELIVERY => 'Đang giao hàng',
             self::STATUS_DELIVERED => 'Đã giao hàng',
-            self::STATUS_COMPLETED => 'Đã hoàn thiện',
+            self::STATUS_COMPLETED => 'Hoàn thành',
             self::STATUS_RETURNED => 'Hoàn trả',
+            self::STATUS_CANCELLED => 'Đã hủy',
         ];
     }
 

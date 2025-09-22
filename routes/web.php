@@ -2,9 +2,6 @@
 
 <?php
 
-// AJAX popup chọn khách hàng
-Route::get('customers/popup/search', [App\Http\Controllers\CustomerPopupController::class, 'search'])->name('customers.popup.search')->middleware('auth');
-Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupController::class, 'store'])->name('customers.popup.store')->middleware('auth');
 
 
 use App\Http\Controllers\AuthController;
@@ -45,6 +42,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class)->middleware('checkpermission');
     // Quản trị biến thể sản phẩm
     Route::resource('product-variants', ProductVariantController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::post('product-variants/{variant}/duplicate', [ProductVariantController::class, 'duplicate'])->name('product-variants.duplicate')->middleware('checkpermission');
+
+    // AJAX popup chọn khách hàng
+Route::get('customers/popup/search', [App\Http\Controllers\CustomerPopupController::class, 'search'])->name('customers.popup.search')->middleware('auth');
+Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupController::class, 'store'])->name('customers.popup.store')->middleware('auth');
+
 
 
     Route::get('variants/{variant}/edit-price', [ProductVariantPriceController::class, 'edit'])->name('variants.edit-price');

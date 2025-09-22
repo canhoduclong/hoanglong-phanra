@@ -155,6 +155,8 @@
                                     <button type="button" class="btn btn-danger btn-sm remove-variant">X</button>
                                     {{-- nút điều chỉnh giá --}}
                                     <a href="{{ route('variants.edit-price', $variant->id) }}" class="btn btn-sm btn-warning mt-1">Điều chỉnh giá</a>
+                                    <button type="button" class="btn btn-info btn-sm mt-1 clone-variant" title="Nhân bản biến thể" data-variant-id="{{ $variant->id }}">Nhân bản</button>
+                                    <button type="button" class="btn btn-success btn-sm mt-1 quick-edit-variant" title="Sửa nhanh" data-variant-id="{{ $variant->id }}">Sửa nhanh</button>
                                 </td>
                             </tr>
                             @endforeach

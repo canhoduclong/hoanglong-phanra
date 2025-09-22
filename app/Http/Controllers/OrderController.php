@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -51,12 +52,6 @@ class OrderController extends Controller
         $total = $items->sum(function($item) { return $item->quantity * $item->price; });
         return view('orders.list_variant', compact('items', 'total'))->render();
     }
-    // AJAX: trả về danh sách đơn hàng dạng bảng cho index
-    public function listAjax()
-    {
-        $orders = Order::with(['customer', 'user'])->latest()->get();
-        return view('orders.list_table', compact('orders'))->render();
-    }
 
     // AJAX: chuyển trạng thái đơn hàng (toggle demo: chuyển sang trạng thái tiếp theo)
     public function toggleStatus($id)
@@ -69,6 +64,7 @@ class OrderController extends Controller
         $order->save();
         return response()->json(['status' => $order->status]);
     }
+
     // AJAX: trả về danh sách biến thể theo id (dùng cho JS quản lý đơn hàng)
     public function variantsList(Request $request, $orderId = null)
     {
@@ -83,24 +79,100 @@ class OrderController extends Controller
         }
         return view('orders.list', compact('variants', 'total'));
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        $orders = Order::with('customer', 'user')->latest()->paginate(20);
-        return view('orders.index', compact('orders'));
+        $query = Order::with(['customer', 'user', 'transactions']);
+
+        // Filtering
+        if ($request->filled('customer_name')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->customer_name . '%');
+            });
+        }
+
+        if ($request->filled('phone_number')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('phone', 'like', '%' . $request->phone_number . '%');
+            });
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('payment_status')) {
+            $status = $request->payment_status;
+            $query->where(function ($q) use ($status) {
+                if ($status === 'paid') {
+                    $q->whereRaw('amount_paid >= total');
+                } elseif ($status === 'unpaid') {
+                    $q->where('amount_paid', '=', 0);
+                } elseif ($status === 'partially_paid') {
+                    $q->whereRaw('amount_paid > 0 AND amount_paid < total');
+                }
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Clone the query for calculations before pagination
+        $calculateQuery = clone $query;
+
+        // Calculations
+        $totalInvoiceAmount = $calculateQuery->sum('total');
+        $totalPaidAmount = $calculateQuery->sum('amount_paid');
+        $totalOutstandingAmount = $totalInvoiceAmount - $totalPaidAmount;
+
+        $orders = $query->latest()->paginate(20);
+
+        $allFilteredOrders = $calculateQuery->get();
+        $fullyPaidOrders = $allFilteredOrders->where('payment_status', 'paid')->count();
+        $unpaidOrders = $allFilteredOrders->where('payment_status', 'unpaid')->count();
+        $partiallyPaidOrders = $allFilteredOrders->where('payment_status', 'partially_paid')->count();
+
+
+        $users = User::all();
+        $statusOptions = Order::statusOptions();
+
+        return view('orders.index', compact(
+            'orders',
+            'totalInvoiceAmount',
+            'totalPaidAmount',
+            'totalOutstandingAmount',
+            'fullyPaidOrders',
+            'unpaidOrders',
+            'partiallyPaidOrders',
+            'users',
+            'statusOptions'
+        ));
     }
+
     public function show($id)
     {
         $order = Order::with(['customer', 'user', 'items.product', 'items.variant'])->findOrFail($id);
         return view('orders.show', compact('order'));
     }
+
     public function create()
     {
-    $customers = Customer::all();
-    $users = User::all();
-    $products = Product::with('variants')->get();
-    $statusOptions = \App\Models\Order::statusOptions();
-    return view('orders.create', compact('customers', 'users', 'products', 'statusOptions'));
+        $customers = Customer::all();
+        $users = User::all();
+        $products = Product::with('variants')->get();
+        $statusOptions = \App\Models\Order::statusOptions();
+        return view('orders.create', compact('customers', 'users', 'products', 'statusOptions'));
     }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -119,6 +191,7 @@ class OrderController extends Controller
             'payment_method' => 'nullable|string|max:50',
             'payment_status' => 'nullable|string|max:20',
         ]);
+
         $order = Order::create([
             'customer_id' => $data['customer_id'],
             'user_id' => $data['user_id'],
@@ -130,6 +203,7 @@ class OrderController extends Controller
             'payment_method' => $data['payment_method'] ?? null,
             'payment_status' => $data['payment_status'] ?? 'unpaid',
         ]);
+
         $total = 0;
         foreach ($data['items'] as $item) {
             $itemTotal = $item['quantity'] * $item['price'];
@@ -143,17 +217,20 @@ class OrderController extends Controller
             $total += $itemTotal;
         }
         $order->update(['total' => $total]);
+
         return redirect()->route('orders.index')->with('success', 'Tạo đơn hàng thành công!');
     }
+
     public function edit($id)
     {
-    $order = Order::with(['items'])->findOrFail($id);
-    $customers = Customer::all();
-    $users = User::all();
-    $products = Product::with('variants')->get();
-    $statusOptions = \App\Models\Order::statusOptions();
-    return view('orders.edit', compact('order', 'customers', 'users', 'products', 'statusOptions'));
+        $order = Order::with(['items'])->findOrFail($id);
+        $customers = Customer::all();
+        $users = User::all();
+        $products = Product::with('variants')->get();
+        $statusOptions = \App\Models\Order::statusOptions();
+        return view('orders.edit', compact('order', 'customers', 'users', 'products', 'statusOptions'));
     }
+
     public function update(Request $request, $id)
     {
         $order = Order::findOrFail($id);
@@ -172,6 +249,7 @@ class OrderController extends Controller
             'payment_method' => 'nullable|string|max:50',
             'payment_status' => 'nullable|string|max:20',
         ]);
+
         $order->update([
             'customer_id' => $data['customer_id'],
             'user_id' => $data['user_id'],
@@ -182,6 +260,7 @@ class OrderController extends Controller
             'payment_method' => $data['payment_method'] ?? null,
             'payment_status' => $data['payment_status'] ?? 'unpaid',
         ]);
+
         $order->items()->delete();
         $total = 0;
         foreach ($data['items'] as $item) {
@@ -196,8 +275,10 @@ class OrderController extends Controller
             $total += $itemTotal;
         }
         $order->update(['total' => $total]);
+
         return redirect()->route('orders.index')->with('success', 'Cập nhật đơn hàng thành công!');
     }
+
     public function destroy($id)
     {
         $order = Order::findOrFail($id);

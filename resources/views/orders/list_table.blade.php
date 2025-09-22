@@ -8,6 +8,7 @@
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
             <th>Trạng thái thanh toán</th>
+            <th>Đã thanh toán</th>
             <th>Ngày tạo</th>
             <th>Thao tác</th>
         </tr>
@@ -37,6 +38,17 @@
                 @endif
             </td>
             <td>{{ $order->created_at }}</td>
+            <td>
+                @php
+                    $paid = $order->transactions->where('type', 'payment')->sum('amount') - $order->transactions->where('type', 'refund')->sum('amount');
+                @endphp
+                @if(!$order->isPaid())
+                    <span class="text-primary fw-bold">{{ number_format($paid, 0, ',', '.') }} đ</span>
+                    <a href="{{ route('transactions.create', ['order_id' => $order->id]) }}" class="btn btn-success btn-sm ms-2">Thanh toán</a>
+                @else
+                    <span class="text-success">Đã thanh toán đủ</span>
+                @endif
+            </td>
             <td>
                 @if(!$order->isPaid() && $order->status !== \App\Models\Order::STATUS_COMPLETED)
                     <button class="btn btn-info btn-sm edit-order" data-id="{{ $order->id }}">Sửa</button>

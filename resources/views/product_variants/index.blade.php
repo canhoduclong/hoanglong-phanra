@@ -50,6 +50,8 @@
                 <td>
                     <a href="{{ route('product-variants.edit', $v->id) }}" class="btn btn-sm btn-warning">Sửa</a>
                     <a href="{{ route('variants.edit-price', $v->id) }}?from=product-variants" class="btn btn-sm btn-info mt-1">Điều chỉnh giá</a>
+                    <button type="button" class="btn btn-sm btn-primary mt-1 clone-variant-index" data-variant-id="{{ $v->id }}" data-variant='@json($v)'>Nhân bản</button>
+                    <button type="button" class="btn btn-sm btn-success mt-1 quick-edit-variant-index" data-variant-id="{{ $v->id }}">Sửa nhanh</button>
                 </td>
             </tr>
             @endforeach

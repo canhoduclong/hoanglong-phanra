@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title','Đăng nhập')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     
 	<!-- Global stylesheets -->
@@ -23,8 +24,7 @@
 	<script src="{{ asset('assets/js/vendor/visualization/d3/d3_tooltip.js') }}"></script>
 
 
-    <script type="module" src="{{ asset('build/assets/app-DyJl0sfC.js') }}"></script>
-    {{-- Nếu dùng Vite, nhúng trực tiếp asset('build/assets/app-*.js') --}}
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
  	
 
     @stack('styles')

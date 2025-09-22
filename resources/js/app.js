@@ -1,4 +1,4 @@
-    // --- Giao dịch: chọn đơn hàng, hiển thị tổng tiền, thanh toán toàn bộ ---
+// --- Giao dịch: chọn đơn hàng, hiển thị tổng tiền, thanh toán toàn bộ ---
     let orderSelect = document.getElementById('order_id_select');
     let orderTotalBox = document.getElementById('order_total_box');
     let orderTotalText = document.getElementById('order_total_text');
@@ -30,12 +30,21 @@
             }
         });
     }
+    // --- Thanh toán đủ cho form giao dịch đơn hàng ---
     if (payFullOrder && amountInput) {
+        // Lấy số tiền còn lại từ biến blade nếu có
+        let remain = 0;
+        if (window.remainAmount !== undefined) {
+            remain = window.remainAmount;
+        } else if (amountInput.hasAttribute('max')) {
+            remain = parseInt(amountInput.getAttribute('max')) || 0;
+        }
         payFullOrder.addEventListener('change', function() {
-            if (payFullOrder.checked && currentOrderTotal) {
-                amountInput.value = currentOrderTotal;
+            if (payFullOrder.checked && remain > 0) {
+                amountInput.value = remain.toLocaleString('vi-VN');
                 amountInput.readOnly = true;
             } else {
+                amountInput.value = '';
                 amountInput.readOnly = false;
             }
         });
@@ -50,6 +59,127 @@
 import './bootstrap';
 
 document.addEventListener("DOMContentLoaded", function () {
+    // --- Nhân bản biến thể ở trang product-variants index ---
+    document.querySelectorAll('.clone-variant-index').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let tr = btn.closest('tr');
+            if (!tr) return;
+            let id = btn.getAttribute('data-variant-id');
+            // Tạo form xác nhận gửi về route nhân bản
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/product-variants/${id}/duplicate`;
+            form.innerHTML = `
+                <input type='hidden' name='_token' value='${document.querySelector('meta[name=csrf-token]')?.content || ''}'>
+                <button type='submit' class='btn btn-success btn-sm'>Xác nhận nhân bản</button>
+                <button type='button' class='btn btn-secondary btn-sm cancel-clone-variant'>Hủy</button>
+            `;
+            let newRow = document.createElement('tr');
+            let td = document.createElement('td');
+            td.colSpan = tr.children.length;
+            td.appendChild(form);
+            newRow.appendChild(td);
+            tr.parentNode.insertBefore(newRow, tr.nextSibling);
+            // Hủy
+            form.querySelector('.cancel-clone-variant').onclick = function() { newRow.remove(); };
+        });
+    });
+
+    // --- Sửa nhanh biến thể ở trang product-variants index ---
+    document.querySelectorAll('.quick-edit-variant-index').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let tr = btn.closest('tr');
+            if (!tr) return;
+            // Nếu đã có form thì không thêm nữa
+            if (tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains('quick-edit-row')) return;
+            let id = btn.getAttribute('data-variant-id');
+            let tds = tr.querySelectorAll('td');
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/product-variants/${id}`;
+            let price = tds[7].innerText.trim().replace(/[^0-9]/g, '');
+            form.innerHTML = `
+                <input type='hidden' name='_token' value='${document.querySelector('meta[name=csrf-token]')?.content || ''}'>
+                <input type='hidden' name='_method' value='PUT'>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>SKU</label>
+                    <input type='text' name='sku' value='${tds[2].innerText.trim()}' class='form-control' style='width:100px;'>
+                </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>Size</label>
+                    <input type='text' name='size' value='${tds[4].innerText.trim()}' class='form-control' style='width:80px;'>
+                </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>Quality</label>
+                    <input type='text' name='quality' value='${tds[5].innerText.trim()}' class='form-control' style='width:80px;'>
+                </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>Production Date</label>
+                    <input type='date' name='production_date' value='${tds[6].innerText.trim()}' class='form-control' style='width:120px;'>
+                </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>Price</label>
+                    <input type='text' name='price' value='${price}' class='form-control format-number' style='width:100px;'>
+                </div>
+                <div style="display: inline-block; margin-right: 10px;">
+                    <label>Stock</label>
+                    <input type='number' name='stock' value='${tds[8].innerText.trim()}' class='form-control' style='width:80px;'>
+                </div>
+                <button type='submit' class='btn btn-primary btn-sm'>Lưu</button>
+                <button type='button' class='btn btn-secondary btn-sm cancel-quick-edit-variant'>Hủy</button>
+            `;
+            let newRow = document.createElement('tr');
+            newRow.classList.add('quick-edit-row');
+            let td = document.createElement('td');
+            td.colSpan = tr.children.length;
+            td.appendChild(form);
+            newRow.appendChild(td);
+            tr.parentNode.insertBefore(newRow, tr.nextSibling);
+            // Hủy
+            form.querySelector('.cancel-quick-edit-variant').onclick = function() { newRow.remove(); };
+        });
+    });
+    // --- Nhân bản biến thể ---
+    document.querySelectorAll('.clone-variant').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let tr = btn.closest('tr');
+            if (!tr) return;
+            let clone = tr.cloneNode(true);
+            // Xóa id variant để tạo mới
+            clone.removeAttribute('data-variant-id');
+            // Đổi tất cả name="variants[ID]..." thành name="variants[new_x]..."
+            let newId = 'new_' + Math.floor(Math.random()*1000000);
+            clone.querySelectorAll('[name]').forEach(function(input) {
+                input.name = input.name.replace(/variants\[[^\]]+\]/, 'variants['+newId+']');
+                if (input.type !== 'hidden') input.value = '';
+                if (input.type === 'date') input.value = '';
+            });
+            // Xóa ảnh preview nếu có
+            let img = clone.querySelector('.variant-image-preview img');
+            if (img) img.remove();
+            // Reset media id
+            let mediaInput = clone.querySelector('input[name$="[media_id]"]');
+            if (mediaInput) mediaInput.value = '';
+            // Thêm vào cuối tbody
+            tr.parentNode.appendChild(clone);
+        });
+    });
+
+    // --- Sửa nhanh biến thể ---
+    document.querySelectorAll('.quick-edit-variant').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let tr = btn.closest('tr');
+            if (!tr) return;
+            // Enable tất cả input trong dòng này
+            tr.querySelectorAll('input,select').forEach(function(input) {
+                input.removeAttribute('readonly');
+                input.removeAttribute('disabled');
+            });
+            // Focus vào ô đầu tiên
+            let firstInput = tr.querySelector('input,select');
+            if (firstInput) firstInput.focus();
+        });
+    });
     // Hàm format số có dấu phân cách
     function formatNumber(value) {
         if (!value) return "";
@@ -57,24 +187,27 @@ document.addEventListener("DOMContentLoaded", function () {
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ","); // thêm dấu ,
     }
 
-    // Lặp qua tất cả input có class "format-number"
-    document.querySelectorAll(".format-number").forEach(function(input) {
-        // Khi gõ
-        input.addEventListener("input", function(e) {
-            let cursor = input.selectionStart; 
+    // Sử dụng event delegation cho các input có class "format-number"
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('format-number')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
             let beforeLength = input.value.length;
 
             input.value = formatNumber(input.value);
 
-            // Giữ nguyên vị trí con trỏ khi đang gõ
             let afterLength = input.value.length;
             input.selectionEnd = cursor + (afterLength - beforeLength);
-        });
+        }
+    });
 
-        // Khi submit form: bỏ dấu phẩy để lưu DB
-        input.form?.addEventListener("submit", function() {
-            input.value = input.value.replace(/,/g, "");
-        });
+    // Khi submit form: bỏ dấu phẩy để lưu DB
+    document.addEventListener('submit', function(e) {
+        if (e.target.tagName === 'FORM') {
+            e.target.querySelectorAll('.format-number').forEach(function(input) {
+                input.value = input.value.replace(/,/g, "");
+            });
+        }
     });
     // --- Popup chọn khách hàng ---
     function loadCustomerList(params = {}) {

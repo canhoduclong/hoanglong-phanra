@@ -35,7 +35,9 @@
             @endforeach
         </tbody>
     </table>
-    <a href="{{ route('transactions.create', ['order_id' => $order->id]) }}" class="btn btn-success mb-3">+ Thêm giao dịch/Thanh toán</a>
+    @if(!$order->isPaid())
+        <a href="{{ route('transactions.create', ['order_id' => $order->id]) }}" class="btn btn-success mb-3">+ Thêm giao dịch/Thanh toán</a>
+    @endif
     <h5>Giao dịch liên quan</h5>
     <table class="table table-sm table-bordered">
         <thead>
