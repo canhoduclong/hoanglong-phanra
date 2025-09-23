@@ -40,6 +40,33 @@
 				<div class="container-fluid">
                     </div>
 			</div>
+
+            <div class="content pt-3">
+                {{-- Hiển thị lỗi --}}
+                @if ($errors->any())
+                    <div class="mb-4 p-4 text-red-800 bg-red-100 border border-red-300 rounded">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $e)
+                                <li>{{ $e }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="mb-4 p-4 text-green-800 bg-green-100 border border-green-300 rounded">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="mb-4 p-4 text-red-800 bg-red-100 border border-red-300 rounded">
+                        {{ session('error') }}
+                    </div>
+                @endif
+               
+ </div>
+
+
             <div class="content-inner"> 
                 @yield('content')
             </div>  

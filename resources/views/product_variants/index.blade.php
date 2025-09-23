@@ -5,60 +5,116 @@
         <h4 class="mb-0">Danh sách biến thể sản phẩm</h4>
         <a href="{{ route('product-variants.create') }}" class="btn btn-success">+ Thêm biến thể mới</a>
     </div>
-    <form method="get" class="mb-3">
-        <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Tìm kiếm SKU, size, chất lượng, tên sản phẩm..." value="{{ request('q') }}">
-            <button class="btn btn-primary">Tìm kiếm</button>
+    <form method="get" class="mb-3" id="filter-form">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="q" class="form-control" placeholder="Tìm kiếm SKU, size, chất lượng, tên sản phẩm..." value="{{ request('q') }}">
+            </div>
+            <div class="col-md-3">
+                <select name="product_id" class="form-control">
+                    <option value="">-- Lọc theo sản phẩm --</option>
+                    @foreach($products as $product)
+                        <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary">Lọc</button>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-2">
+                <select name="per_page" class="form-control">
+                    <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5 / trang</option>
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / trang</option>
+                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20 / trang</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 / trang</option>
+                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 / trang</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="min_stock" class="form-control" placeholder="Tồn kho từ" value="{{ request('min_stock') }}">
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="max_stock" class="form-control" placeholder="Tồn kho đến" value="{{ request('max_stock') }}">
+            </div>
         </div>
     </form>
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Ảnh</th>
-                <th>SKU</th>
-                <th>Sản phẩm</th>
-                <th>Size</th>
-                <th>Chất lượng</th>
-                <th>Ngày SX</th>
-                <th>Giá bán</th>
-                <th>Tồn kho</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($variants as $v)
-            <tr>
-                <td>{{ $v->id }}</td>
-                <td> 
-                    @if($v->media)
-                        <img src="{{ asset('storage/' . $v->media->file_path) }}" width="50" class="rounded">
-                    @endif
-                </td>
-                <td>{{ $v->sku }}</td>
-                <td>{{ $v->product->name ?? '' }}</td>
-                <td>{{ $v->size }}</td>
-                <td>{{ $v->quality }}</td>
-                <td>{{ $v->production_date }}</td>
-                <td>
-                    @php
-                        $latestPrice = $v->latestPriceRule ? $v->latestPriceRule->price : $v->final_price;
-                    @endphp
-                    {{ number_format($latestPrice ?? 0, 0, ',', '.') }} đ
-                </td>
-                <td>{{ $v->stock }}</td>
-                <td>
-                    <a href="{{ route('product-variants.edit', $v->id) }}" class="btn btn-sm btn-warning">Sửa</a>
-                    <a href="{{ route('variants.edit-price', $v->id) }}?from=product-variants" class="btn btn-sm btn-info mt-1">Điều chỉnh giá</a>
-                    <button type="button" class="btn btn-sm btn-primary mt-1 clone-variant-index" data-variant-id="{{ $v->id }}" data-variant='@json($v)'>Nhân bản</button>
-                    <button type="button" class="btn btn-sm btn-success mt-1 quick-edit-variant-index" data-variant-id="{{ $v->id }}">Sửa nhanh</button>
-                </td>
-            </tr>
-            @endforeach
-    </tbody>
-    </table>
-    <div>
-        {{ $variants->links() }}
+
+    <div class="mb-3">
+        <button class="btn btn-danger" id="bulk-delete-btn">Xoá các mục đã chọn</button>
+    </div>
+
+    <div id="variants-table">
+        @include('product_variants._variants_table')
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    function load_variants(url) {
+        $.ajax({
+            url: url,
+            success: function(data) {
+                $('#variants-table').html(data);
+            }
+        });
+    }
+
+    $('#filter-form').on('submit', function(e) {
+        e.preventDefault();
+        var url = "{{ route('product-variants.index') }}" + "?" + $(this).serialize();
+        load_variants(url);
+    });
+
+    $(document).on('change', 'select[name=per_page]', function() {
+        $('#filter-form').submit();
+    });
+
+    $(document).on('click', '.pagination a', function(event) {
+        event.preventDefault();
+        load_variants($(this).attr('href'));
+    });
+
+    $(document).on('change', '#select-all', function() {
+        $('.variant-checkbox').prop('checked', $(this).prop('checked'));
+    });
+
+    $(document).on('click', '#bulk-delete-btn', function() {
+        var selected = [];
+        $('.variant-checkbox:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        if (selected.length > 0) {
+            if (confirm('Bạn có chắc muốn xoá các biến thể đã chọn?')) {
+                $.ajax({
+                    url: "{{ route('product-variants.bulk-delete') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ids: selected
+                    },
+                    success: function(response) {
+                        alert(response.success);
+                        // Reload the current page
+                        var currentPageUrl = $('.pagination .active .page-link').attr('href') || "{{ route('product-variants.index') }}";
+                        load_variants(currentPageUrl);
+                    }
+                });
+            }
+        } else {
+            alert('Vui lòng chọn ít nhất một biến thể để xoá.');
+        }
+    });
+});
+</script>
+@endpush

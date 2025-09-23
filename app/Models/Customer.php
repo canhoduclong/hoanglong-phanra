@@ -33,6 +33,7 @@ class Customer extends Model
               'truck_delivery_image',
               'truck_station_phone',
               'truck_fee',
+        'assigned_to',
          ];
     protected $dates = ['dob'];
     protected $casts = [
@@ -54,5 +55,13 @@ class Customer extends Model
     public function addresses()
     {
         return $this->hasMany(CustomerAddress::class);
+    }
+
+    /**
+     * Quan hệ: Customer được assign cho một user
+     */
+    public function assignedTo()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 }

@@ -1,9 +1,6 @@
 
 
-<?php
-
-
-
+<?php 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductVariantPriceController;
@@ -20,11 +17,11 @@ use App\Http\Controllers\PermissionAddressController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\HomeController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth pages
 Route::middleware('guest')->group(function () {
@@ -40,8 +37,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Quản lý sản phẩm
     Route::resource('products', ProductController::class)->middleware('checkpermission');
+    Route::get('products/{product}/quick-edit-form', [ProductController::class, 'getQuickEditForm'])->name('products.getQuickEditForm');
     // Quản trị biến thể sản phẩm
     Route::resource('product-variants', ProductVariantController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::post('product-variants/bulk-delete', [ProductVariantController::class, 'bulkDelete'])->name('product-variants.bulk-delete');
     Route::post('product-variants/{variant}/duplicate', [ProductVariantController::class, 'duplicate'])->name('product-variants.duplicate')->middleware('checkpermission');
 
     // AJAX popup chọn khách hàng
@@ -74,6 +73,7 @@ Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupControll
 
     Route::post('orders/{order}/add-variant', [OrderController::class, 'addVariant']);
     Route::post('orders/{order}/remove-variant', [OrderController::class, 'removeVariant']);
+    Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
 
 
     // Quản lý danh mục
@@ -133,6 +133,10 @@ Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupControll
     
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); 
 
+    Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    });
 });
 
 

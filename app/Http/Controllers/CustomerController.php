@@ -3,8 +3,10 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Customer;
 use App\Models\CustomerType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CustomerImport;
 use App\Exports\CustomerExport;
@@ -62,11 +64,16 @@ class CustomerController extends Controller
     public function index(Request $request)
     { 
         $this->authorize('viewAny', Customer::class);
-        $query = Customer::with(['type', 'addresses']);
+        $query = Customer::with(['type', 'addresses', 'assignedTo']);
 
         // Lọc theo loại
         if ($request->filled('type_id')) {
             $query->where('customer_type_id', $request->type_id);
+        }
+
+        // Lọc theo user (chỉ admin)
+        if (Gate::allows('filter_customer_by_user') && $request->filled('assigned_to')) {
+            $query->where('assigned_to', $request->assigned_to);
         }
 
         // Tìm theo tên / phone / email
@@ -88,7 +95,12 @@ class CustomerController extends Controller
                              ->orderBy('name')
                              ->get(['id', 'name']);
 
-        return view('customers.index', compact('customers', 'types'));
+        $users = null;
+        if (Gate::allows('filter_customer_by_user')) {
+            $users = User::orderBy('name')->get(['id', 'name']);
+        }
+
+        return view('customers.index', compact('customers', 'types', 'users'));
     }
 
     // Form create

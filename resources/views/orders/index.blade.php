@@ -153,6 +153,7 @@
                         @endif
                     </td>
                     <td>
+                        <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-info">xem</a>
                         @if(!$order->isPaid() && $order->status !== \App\Models\Order::STATUS_COMPLETED)
                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-info btn-sm">Sửa</a>
                         @endif

@@ -6,12 +6,19 @@ use App\Models\OrderItem;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\User;
+use App\Models\User; 
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    protected OrderService $orderService;
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     // AJAX: thêm biến thể vào đơn hàng
     public function addVariant(Request $request, $orderId)
     {
@@ -277,6 +284,22 @@ class OrderController extends Controller
         $order->update(['total' => $total]);
 
         return redirect()->route('orders.index')->with('success', 'Cập nhật đơn hàng thành công!');
+    }
+
+    public function confirm(Request $request, Order $order)
+    {
+        $newStatus = $request->input('status');
+        $user = auth()->user();
+
+        try {
+            $orderService = new OrderService();
+            $orderService->updateStatus($order, $newStatus, $user);
+            
+            return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+        } catch (\Exception $e) {
+            // Bắt lỗi và báo lên popup (flash message)
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function destroy($id)

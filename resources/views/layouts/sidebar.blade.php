@@ -29,20 +29,39 @@
 						<div class="hstack gap-2 flex-grow-1 my-1">
 							<img src="assets/images/brands/shell.svg" class="w-32px h-32px" alt="">
 							<div class="me-auto">
-								<div class="fs-sm text-white opacity-75 mb-1">Customer</div>
-								<div class="fw-semibold">Royal Dutch Shell</div>
+								<div class="fs-sm text-white opacity-75 mb-1">{{ auth()->user()->roles()->first()->name ?? '' }}</div>
+								<div class="fw-semibold">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
 							</div>
 						</div>
 					</a>
 
 					<div class="dropdown-menu w-100">
-						<a href="#" class="dropdown-item hstack gap-2 py-2">
-							<img src="assets/images/brands/tesla.svg" class="w-32px h-32px" alt="">
-							<div>
-								<div class="fw-semibold">Tesla Motors Inc</div>
-								<div class="fs-sm text-muted">42 users</div>
+						
+										<!-- Thông tin User -->
+					<div class="p-4 border-b border-gray-700 items-center">
+						 
+						<div>
+							<div class="font-semibold">{{ auth()->user()->name }}</div>
+							<div class="text-sm text-gray-400">{{ auth()->user()->email }}</div>
+							<div class="text-xs text-gray-500">
+								@if(auth()->user()->roles->isNotEmpty())
+									{{ auth()->user()->roles->pluck('name')->join(', ') }}
+								@else
+									No Role
+								@endif
 							</div>
-						</a>
+						</div>
+
+						<form method="POST" action="{{ route('logout') }}">
+							@csrf
+							<button class="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+								Đăng xuất
+							</button>
+						</form>
+
+					</div>
+
+
 						 
 					</div>
 				</div>
@@ -147,6 +166,11 @@
 
 
 					</ul>
+					 <!-- Logout -->
+					<div class="p-4 border-t border-gray-700">
+						
+					</div>
+
 				</div>
 				<!-- /main navigation -->
 

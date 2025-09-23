@@ -49,6 +49,18 @@ class PermissionSeeder extends Seeder
                 ]
             );
         }
+
+        // Add manage-settings permission
+        DB::table('permissions')->updateOrInsert(
+            ['name' => 'manage-settings'],
+            [
+                'description' => 'Manage website settings',
+                'group' => 'settings',
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
+
         // Gán tất cả quyền cho role admin
         $adminRole = DB::table('roles')->where('name', 'admin')->first();
         if ($adminRole) {

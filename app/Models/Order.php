@@ -10,6 +10,11 @@ class Order extends Model
         'customer_id', 'user_id', 'code', 'total', 'status',
         'amount_paid', 'amount_due', 'payment_method', 'payment_status'
     ];
+    
+    public function approvals()
+    {
+        return $this->hasMany(OrderApproval::class);
+    }
 
     public function transactions() { return $this->hasMany(Transaction::class); }
 

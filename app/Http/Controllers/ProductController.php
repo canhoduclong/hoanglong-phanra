@@ -109,12 +109,61 @@ class ProductController extends Controller
         $categories = Category::all();
         return view('products.edit', compact('product','page','perPage','categories'));
 
+    }
+
+    public function getQuickEditForm(Product $product)
+    {
+        return view('products._quick-edit-form', compact('product'));
     } 
     
     
     public function update(Request $request, Product $product)
     {
         $this->authorize('update', $product);
+
+        if ($request->ajax()) {
+            $validated = $request->validate([
+                'name'  => 'required|string|max:255',
+                'price' => 'nullable|numeric',
+                'stock' => 'nullable|numeric',
+                'media_id' => 'nullable|integer|exists:media,id',
+            ]);
+
+            $product->name = $validated['name'];
+            if(isset($validated['price'])) {
+                $product->price = $validated['price'];
+            }
+            if(isset($validated['stock'])) {
+                $product->stock = $validated['stock'];
+            }
+
+            if ($request->filled('media_id')) {
+                // Update or create the media link
+                MediaLink::updateOrCreate(
+                    [
+                        'model_type' => Product::class,
+                        'model_id'   => $product->id,
+                        'role'       => 'avatar',
+                    ],
+                    [
+                        'media_id'   => $validated['media_id'],
+                    ]
+                );
+                $product->load('avatar.media'); // Reload the relationship
+            }
+
+            $product->save();
+
+            return response()->json([
+                'success' => true,
+                'product' => [
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'image_url' => $product->avatar && $product->avatar->media ? asset('storage/' . $product->avatar->media->file_path) : null,
+                ]
+            ]);
+        }
 
         DB::beginTransaction();
         try {

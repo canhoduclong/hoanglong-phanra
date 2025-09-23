@@ -2,6 +2,7 @@
 
 namespace App\Providers; 
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 use App\Models\Product;
@@ -30,13 +31,12 @@ use App\Policies\ProductVariantPolicy;
 
 
 
-
 class AuthServiceProvider extends ServiceProvider
 {
     /**
      * The model to policy mappings for the application.
      *
-     * @var array<class-string, class-string>
+     * @var array<class-string, class-class-string>
      */
     protected $policies = [
         Product::class => ProductPolicy::class,
@@ -57,10 +57,20 @@ class AuthServiceProvider extends ServiceProvider
      * Register any authentication / authorization services.
      */
     public function boot(): void
-    { 
+    {
         // Đăng ký các Gates tại đây
         // Gate::define('edit-settings', function (User $user) {
         //     return $user->isAdmin();
         // });
+        Gate::define('filter_customer_by_user', function (User $user) {
+            return $user->isAdmin();
+        });
+
+        Gate::define('bulk-delete', function (User $user, $model) {
+            if ($model === ProductVariant::class) {
+                return $user->hasPermissionTo('product-variants.bulk-delete');
+            }
+            return false;
+        });
     }
 }

@@ -106,8 +106,49 @@ class ProductVariantController extends Controller
                       $sub->where('name', 'like', "%$q%") ;
                   });
         }
-        $variants = $query->orderByDesc('id')->paginate(20);
-        return view('product_variants.index', compact('variants'));
+
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->input('product_id'));
+        }
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('production_date', '>=', $request->input('from_date'));
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('production_date', '<=', $request->input('to_date'));
+        }
+
+        if ($request->filled('min_stock')) {
+            $query->where('stock', '>=', $request->input('min_stock'));
+        }
+
+        if ($request->filled('max_stock')) {
+            $query->where('stock', '<=', $request->input('max_stock'));
+        }
+
+        $perPage = $request->input('per_page', 20);
+        $variants = $query->orderByDesc('id')->paginate($perPage)->appends($request->query());
+
+        if ($request->ajax()) {
+            return view('product_variants._variants_table', compact('variants'))->render();
+        }
+
+        $products = \App\Models\Product::orderBy('name')->get();
+        return view('product_variants.index', compact('variants', 'products'));
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        Gate::authorize('bulk-delete', ProductVariant::class);
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'integer|exists:product_variants,id',
+        ]);
+
+        ProductVariant::whereIn('id', $request->input('ids'))->delete();
+
+        return response()->json(['success' => 'Đã xoá thành công các biến thể đã chọn.']);
     }
 
     public function create()

@@ -7,11 +7,42 @@
         <div class="card-body">
             <p><strong>Khách hàng:</strong> {{ $order->customer->name ?? '' }}</p>
             <p><strong>Nhân viên:</strong> {{ $order->user->name ?? '' }}</p>
-            <p><strong>Tổng tiền:</strong> {{ number_format($order->total, 0, ',', '.') }} đ</p>
-            <p><strong>Trạng thái:</strong> {{ $order->status }}</p>
+            <p><strong>Tổng tiền:</strong> {{ number_format($order->total, 0, ',', '.') }} đ</p> 
             <p><strong>Ngày tạo:</strong> {{ $order->created_at }}</p>
+            <p><strong>Trạng thái hiện tại:</strong> {{ $order->status }}</p>
         </div>
+        
+        <div class="card-footer">
+            @if($order->status === 'draft')
+                <form action="{{ route('orders.confirm', $order->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="status" value="pending">
+                    <button type="submit" class="btn btn-primary">Lên đơn</button>
+                </form>
+            @endif
+            @if($order->status === 'pending')
+                <form action="{{ route('orders.confirm', $order->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="status" value="confirmed">
+                    <button type="submit" class="btn btn-primary">Xác nhận đơn hàng</button>
+                </form>
+            @endif
+            @if($order->status === 'confirmed')
+                <form action="{{ route('orders.ship', $order->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="status" value="confirmed">
+                    <button type="submit" class="btn btn-warning">Đánh dấu đã giao hàng</button>
+                </form>
+            @endif
+            @if($order->status === 'shipped')
+                <form action="{{ route('orders.complete', $order->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="status" value="shipped">
+                    <button type="submit" class="btn btn-success">Hoàn tất đơn hàng</button>
+                </form>
+            @endif
     </div>
+    
     <h5>Danh sách sản phẩm</h5>
     <table class="table table-bordered">
         <thead>

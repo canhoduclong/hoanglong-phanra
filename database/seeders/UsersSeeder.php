@@ -15,31 +15,66 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
-        // Role Name
-        $adminRole   = Role::create(['name' => 'admin']);
-        $managerRole = Role::create(['name' => 'manager']);
-        $staffRole   = Role::create(['name' => 'staff']);
+         // Danh sách role
+        $roles = [
+            'admin',
+            'sale',
+            'leader',
+            'accountant',
+            'manager',
+            'warehouse',
+            'factory',
+        ];
 
-        // tạo người dùng
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('123456'),
-        ]);
-        $admin->roles()->attach($adminRole);
+        // Tạo role nếu chưa có
+        $roleModels = [];
+        foreach ($roles as $roleName) {
+            $roleModels[$roleName] = Role::firstOrCreate(['name' => $roleName]);
+        }
 
-        $manager = User::create([
-            'name' => 'Manager User',
-            'email' => 'manager@example.com',
-            'password' => Hash::make('123456'),
-        ]);
-        $manager->roles()->attach($managerRole);
+        // Tạo user cho từng role
+        $users = [
+            'admin' => [
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+            ],
+            'sale' => [
+                'name' => 'Sale User',
+                'email' => 'sale@example.com',
+            ],
+            'leader' => [
+                'name' => 'Leader User',
+                'email' => 'leader@example.com',
+            ],
+            'accountant' => [
+                'name' => 'Accountant User',
+                'email' => 'accountant@example.com',
+            ],
+            'manager' => [
+                'name' => 'Manager User',
+                'email' => 'manager@example.com',
+            ],
+            'warehouse' => [
+                'name' => 'Warehouse User',
+                'email' => 'warehouse@example.com',
+            ],
+            'factory' => [
+                'name' => 'Factory User',
+                'email' => 'factory@example.com',
+            ],
+        ];
 
-        $staff = User::create([
-            'name' => 'Staff User',
-            'email' => 'staff@example.com',
-            'password' => Hash::make('123456'),
-        ]);
-        $staff->roles()->attach($staffRole);
+        foreach ($users as $role => $userData) {
+            $user = User::firstOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'name' => $userData['name'],
+                    'password' => Hash::make('123456'),
+                ]
+            );
+
+            // Gán role cho user
+            $user->roles()->sync([$roleModels[$role]->id]);
+        }
     }
 }

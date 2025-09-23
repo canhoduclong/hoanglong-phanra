@@ -114,19 +114,19 @@
         </thead>
         <tbody> 
             @foreach($products as $key => $product)  
-            <tr>
+            <tr id="product-row-{{ $product->id }}">
                 <td width="1%">
                    
                     @if($product->avatar && $product->avatar->media)
-                        <img src="{{ asset('storage/' . $product->avatar->media->file_path) }}" width="80">
+                        <img src="{{ asset('storage/' . $product->avatar->media->file_path) }}" width="80" id="product-image-{{ $product->id }}">
                     @else
-                        <span>No image</span>
+                        <span id="product-image-{{ $product->id }}">No image</span>
                     @endif
 
                 </td>  
-                <td>{{ $product->name ?? '' }}</td> 
+                <td id="product-name-{{ $product->id }}">{{ $product->name ?? '' }}</td> 
                 <td>{{ $product->category->name ??'' }}</td>
-                <td>{{ $product->stock ?? '' }}</td>
+                <td id="product-stock-{{ $product->id }}">{{ $product->stock ?? '' }}</td>
                 <td>
 
                     @if(auth()->user()->hasPermission('edit'))
@@ -135,7 +135,13 @@
                         </a>
                     @endif
  
-                
+                    @can('update', $product)
+                        <button type="button" class="btn btn-info btn-sm me-1 quick-edit-btn" 
+                                data-id="{{ $product->id }}" 
+                                data-url="{{ route('products.getQuickEditForm', $product->id) }}">
+                            Sửa nhanh
+                        </button>
+                    @endcan
 
                     <div class="d-flex justify-content-end list-actions"> 
                          @can('update', $product)
@@ -203,62 +209,91 @@
  
 
 
-
     </div>
 </div>
 
+@push('scripts')
+<script>
+    $(function() {
+        // Quick Edit for Products
+        $(document).on('click', '.quick-edit-btn', function() {
+            let btn = this;
+            let tr = btn.closest('tr');
+            if (!tr) return;
 
+            if (tr.nextSibling && tr.nextSibling.classList && tr.nextSibling.classList.contains('quick-edit-row')) {
+                tr.nextSibling.remove();
+                return;
+            }
 
+            let url = btn.getAttribute('data-url');
 
-
-<script> 
- 
-    $(function() {  
-        productList.getDeleteCampaignsButtons().forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                let url = button.getAttribute('href');
-                productList.deleteCampaign(url);
+            $.get(url, function(data) {
+                let newRow = document.createElement('tr');
+                newRow.classList.add('quick-edit-row');
+                let td = document.createElement('td');
+                td.colSpan = tr.children.length;
+                td.innerHTML = data;
+                newRow.appendChild(td);
+                tr.parentNode.insertBefore(newRow, tr.nextSibling);
             });
-        });        
-    });
+        });
 
-    var productList = {
-        init: function() {
-            // events
-            this.events();
-        },
-        getDeleteCampaignsButtons() {
-            return ProductIndex.productList.getContent().querySelectorAll('[list-action="delete-product"]');
-        },
-        deleteCampaign(url) { 
+        $(document).on('submit', '.quick-edit-form-instance', function(e) {
+            e.preventDefault();
+            let form = this;
+            let formData = new FormData(form);
+            let id = $(form).closest('.quick-edit-row').prev().find('.quick-edit-btn').data('id');
 
-            new Dialog('confirm', {
-                message: "{{ trans('products.delete._confirm') }}",
-                ok: function() {
-                    ProductIndex.productList.addLoadingEffect();
-                    // load list via ajax
-                    $.ajax({
-                        url: url,
-                        method: 'POST',
-                        data:{
-                            _method: 'delete' ,
-                            _token: CSRF_TOKEN,  
-                        },
-                    }).done(function(response) {
-                        notify({
-                            type: response.status,
-                            message: response.message,
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#product-name-' + id).text(response.product.name);
+                    $('#product-stock-' + id).text(response.product.stock);
+                    if(response.product.image_url) {
+                        var image_element = $("<img />", { 
+                            id: 'product-image-'+id, 
+                            src: response.product.image_url, 
+                            width: 80 
                         });
-                        // load list
-                        ProductIndex.productList.load();
-                    }).fail(function(jqXHR, textStatus, errorThrown){
-                    }).always(function() {
+                        $('#product-image-' + id).replaceWith(image_element);
+                    } else {
+                        $('#product-image-' + id).replaceWith('<span id="product-image-' + id + '">No image</span>');
+                    }
+                    $(form).closest('.quick-edit-row').remove();
+                    alert('Cập nhật thành công');
+                },
+                error: function(response) {
+                    var errors = response.responseJSON.errors;
+                    var error_html = '';
+                    $.each(errors, function(key, value) {
+                        error_html += '<li>' + value + '</li>';
                     });
+                    alert('Có lỗi xảy ra:\n' + error_html);
                 }
-            })
-        },
-    }
+            });
+        });
+
+        $(document).on('click', '.cancel-quick-edit', function() {
+            $(this).closest('.quick-edit-row').remove();
+        });
+
+        $(document).on('click', '.choose-image-btn', function() {
+            let productId = $(this).data('product-id');
+            var url = "{{ route('media.library.popup') }}?callback=selectProductImage&product_id=" + productId;
+            window.open(url, 'Media Library', 'width=1024,height=768');
+        });
+
+        window.selectProductImage = function(media, productId) {
+            $('#quick-edit-media-id-' + productId).val(media.id);
+            $('#quick-edit-preview-image-' + productId).attr('src', media.url);
+        };
+    });
 </script>
+@endpush
 
 @endsection

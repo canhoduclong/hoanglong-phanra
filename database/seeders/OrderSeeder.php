@@ -1,5 +1,6 @@
 <?php
 namespace Database\Seeders;
+use App\Enums\OrderStatus;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -17,7 +18,7 @@ class OrderSeeder extends Seeder
                 'user_id' => $managerId,
                 'code' => 'ORD001',
                 'total' => 1500000,
-                'status' => 'draft',
+                'status' => OrderStatus::Draft,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -26,7 +27,7 @@ class OrderSeeder extends Seeder
                 'user_id' => $staffId,
                 'code' => 'ORD002',
                 'total' => 2500000,
-                'status' => 'processing',
+                'status' => OrderStatus::Pending,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -35,7 +36,7 @@ class OrderSeeder extends Seeder
                 'user_id' => $adminId,
                 'code' => 'ORD003',
                 'total' => 3500000,
-                'status' => 'completed',
+                'status' => OrderStatus::Delivered,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

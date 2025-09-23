@@ -3,7 +3,22 @@
 @section('content')
 <div class="container">
     <h2>Danh sách khách hàng</h2>
-
+    <div class="d-flex gap-2 mb-3 align-items-end">
+        <form id="bulkDeleteForm" action="{{ route('customers.bulkDelete') }}" method="POST" class="d-inline-block ms-2">
+            @csrf
+            <input type="hidden" name="ids" id="bulkDeleteIds">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Xác nhận xóa các khách hàng đã chọn?')">Xóa đã chọn</button>
+        </form>
+        <div class="d-inline-block">
+            <form action="{{ route('customers.import') }}" method="POST" enctype="multipart/form-data" class="d-inline-block">
+                @csrf
+                <input type="file" name="file" accept=".xlsx,.xls" style="display:inline-block;width:auto" required>
+                <button class="btn btn-warning">Import Excel</button>
+            </form>
+            <a href="{{ route('customers.export') }}" class="btn btn-info">Export Excel</a>
+            <a href="{{ route('customers.create') }}" class="btn btn-success">+ Thêm khách hàng</a>
+        </div>
+    </div> 
     <div class="mb-3 d-flex justify-content-between align-items-end">
         <form class="row g-2" method="GET" action="{{ route('customers.index') }}">
             <div class="col-auto">
@@ -19,6 +34,18 @@
                     @endforeach
                 </select>
             </div>
+            @if($users)
+            <div class="col-auto">
+                <select name="assigned_to" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả nhân viên --</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" {{ (string)$user->id === request('assigned_to') ? 'selected' : '' }}>
+                            {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @endif
             <div class="col-auto">
                 <select name="per_page" class="form-select" onchange="this.form.submit()">
                     @foreach([10,15,25,50,100] as $pp)
@@ -32,20 +59,7 @@
             </div>
         </form>
 
-        <div class="d-flex gap-2 align-items-end">
-            <form action="{{ route('customers.import') }}" method="POST" enctype="multipart/form-data" class="d-inline-block">
-                @csrf
-                <input type="file" name="file" accept=".xlsx,.xls" style="display:inline-block;width:auto" required>
-                <button class="btn btn-warning">Import Excel</button>
-            </form>
-            <a href="{{ route('customers.export') }}" class="btn btn-info">Export Excel</a>
-            <a href="{{ route('customers.create') }}" class="btn btn-success">+ Thêm khách hàng</a>
-            <form id="bulkDeleteForm" action="{{ route('customers.bulkDelete') }}" method="POST" class="d-inline-block ms-2">
-                @csrf
-                <input type="hidden" name="ids" id="bulkDeleteIds">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Xác nhận xóa các khách hàng đã chọn?')">Xóa đã chọn</button>
-            </form>
-        </div>
+       
     </div>
 
     @if(session('success'))
@@ -62,6 +76,7 @@
                 <th>Phone</th>
                 <th>Email</th>
                 <th>Loại</th> 
+                <th>Nhân viên</th>
                 <th>Địa chỉ mặc định</th>
                 <th>Hành động</th>
             </tr>
@@ -85,6 +100,7 @@
                     <td>{{ $customer->phone }}</td>
                     <td>{{ $customer->email }}</td>
                     <td>{{ optional($customer->type)->name ?? '-' }}</td>
+                    <td>{{ optional($customer->assignedTo)->name ?? '-' }}</td>
                      
                     <td>
                         @php
@@ -113,7 +129,7 @@
                             <span class="text-muted">—</span>
                         @endif
                     </td>
-                    <td class="text-nowrap">
+                    <td class="text-nowrap"> 
                         <a href="{{ route('customers.edit', $customer) }}" class="btn btn-sm btn-warning">Sửa</a>
                         <a href="{{ route('customers.addresses.index', $customer->id) }}" class="btn btn-sm btn-info">Địa chỉ</a>
                         <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline" onsubmit="return confirm('Xác nhận xóa khách hàng này?')">
@@ -124,7 +140,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center">Chưa có khách hàng</td>
+                    <td colspan="9" class="text-center">Chưa có khách hàng</td>
                 </tr>
             @endforelse
         </tbody>
