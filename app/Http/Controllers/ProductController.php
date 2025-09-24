@@ -156,6 +156,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => true,
+                'message' => 'Cập nhật sản phẩm thành công!',
                 'product' => [
                     'name' => $product->name,
                     'price' => $product->price,
@@ -308,7 +309,7 @@ class ProductController extends Controller
 
             DB::commit();
 
-            return redirect()->route('products.index')->with('success', 'Product updated successfully!');
+            return redirect()->route('products.index')->with('success', 'Cập nhật sản phẩm thành công!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());

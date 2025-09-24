@@ -22,6 +22,7 @@ use App\Http\Controllers\HomeController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/variants', [HomeController::class, 'variants'])->name('site.variants');
 
 // Auth pages
 Route::middleware('guest')->group(function () {

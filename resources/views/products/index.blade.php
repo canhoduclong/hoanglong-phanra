@@ -265,7 +265,7 @@
                         $('#product-image-' + id).replaceWith('<span id="product-image-' + id + '">No image</span>');
                     }
                     $(form).closest('.quick-edit-row').remove();
-                    alert('Cập nhật thành công');
+                    showToast(response.message, 'success');
                 },
                 error: function(response) {
                     var errors = response.responseJSON.errors;

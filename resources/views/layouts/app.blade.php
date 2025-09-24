@@ -53,16 +53,7 @@
                     </div>
                 @endif
 
-                @if(session('success'))
-                    <div class="mb-4 p-4 text-green-800 bg-green-100 border border-green-300 rounded">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if(session('error'))
-                    <div class="mb-4 p-4 text-red-800 bg-red-100 border border-red-300 rounded">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                
                
  </div>
 
@@ -79,9 +70,55 @@
         {{-- <script> $('.form-input-styled').uniform(); </script> --}}
 
         @stack('scripts')
-
+        
     </div>
 
+@include('layouts.notifications')
+
+<script>
+    // Function to dynamically show a toast
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+
+        const toastEl = document.createElement('div');
+        toastEl.classList.add('toast');
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+
+        let headerClass = '';
+        if (type === 'error') {
+            headerClass = 'bg-danger text-white';
+        }
+
+        toastEl.innerHTML = `
+            <div class="toast-header ${headerClass}">
+                <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        `;
+
+        container.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+        toast.show();
+    }
+
+    // Show session-based toasts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('notification-container');
+        if (container) {
+            const toastElements = container.querySelectorAll('.toast');
+            toastElements.forEach(toastEl => {
+                const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+                toast.show();
+            });
+        }
+    });
+</script>
 </body>
 </html>
 
