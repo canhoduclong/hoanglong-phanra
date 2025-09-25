@@ -60,6 +60,33 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    function showNotification(message, type = 'success') {
+        var container = $('#notification-container');
+        if (container.length === 0) {
+            // If the container doesn't exist, create it and append it to the body
+            container = $('<div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>');
+            $('body').append(container);
+        }
+
+        // Create the toast element
+        var toast = $(`
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `);
+
+        // Append the toast to the container and show it
+        container.append(toast);
+        var toastInstance = new bootstrap.Toast(toast[0]);
+        toastInstance.show();
+    }
+    
     function load_variants(url) {
         $.ajax({
             url: url,
@@ -68,7 +95,6 @@ $(document).ready(function() {
             }
         });
     }
-
     $('#filter-form').on('submit', function(e) {
         e.preventDefault();
         var url = "{{ route('product-variants.index') }}" + "?" + $(this).serialize();
@@ -83,7 +109,7 @@ $(document).ready(function() {
         event.preventDefault();
         load_variants($(this).attr('href'));
     });
-
+    
     $(document).on('change', '#select-all', function() {
         $('.variant-checkbox').prop('checked', $(this).prop('checked'));
     });
@@ -93,7 +119,7 @@ $(document).ready(function() {
         $('.variant-checkbox:checked').each(function() {
             selected.push($(this).val());
         });
-
+        
         if (selected.length > 0) {
             if (confirm('Bạn có chắc muốn xoá các biến thể đã chọn?')) {
                 $.ajax({
@@ -104,7 +130,7 @@ $(document).ready(function() {
                         ids: selected
                     },
                     success: function(response) {
-                        alert(response.success);
+                        showNotification(response.success, 'success');
                         // Reload the current page
                         var currentPageUrl = $('.pagination .active .page-link').attr('href') || "{{ route('product-variants.index') }}";
                         load_variants(currentPageUrl);
@@ -112,7 +138,7 @@ $(document).ready(function() {
                 });
             }
         } else {
-            alert('Vui lòng chọn ít nhất một biến thể để xoá.');
+            showNotification('Vui lòng chọn ít nhất một biến thể để xoá.', 'warning');
         }
     });
 });

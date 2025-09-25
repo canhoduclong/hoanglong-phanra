@@ -1,5 +1,3 @@
-
-
 <?php 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
@@ -19,8 +17,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\HomeController;
-
-
+use App\Http\Controllers\CustomerPopupController;
+use App\Http\Controllers\OrderAjaxController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/variants', [HomeController::class, 'variants'])->name('site.variants');
 
@@ -37,16 +35,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Quản lý sản phẩm
-    Route::resource('products', ProductController::class)->middleware('checkpermission');
+    Route::resource('products', ProductController::class)->middleware('permission');
     Route::get('products/{product}/quick-edit-form', [ProductController::class, 'getQuickEditForm'])->name('products.getQuickEditForm');
     // Quản trị biến thể sản phẩm
     Route::resource('product-variants', ProductVariantController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::post('product-variants/bulk-delete', [ProductVariantController::class, 'bulkDelete'])->name('product-variants.bulk-delete');
-    Route::post('product-variants/{variant}/duplicate', [ProductVariantController::class, 'duplicate'])->name('product-variants.duplicate')->middleware('checkpermission');
+    Route::post('product-variants/{variant}/duplicate', [ProductVariantController::class, 'duplicate'])->name('product-variants.duplicate')->middleware('permission');
 
     // AJAX popup chọn khách hàng
-Route::get('customers/popup/search', [App\Http\Controllers\CustomerPopupController::class, 'search'])->name('customers.popup.search')->middleware('auth');
-Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupController::class, 'store'])->name('customers.popup.store')->middleware('auth');
+    Route::get('customers/popup/search', [CustomerPopupController::class, 'search'])->name('customers.popup.search')->middleware('auth');
+    Route::post('customers/popup/store', [CustomerPopupController::class, 'store'])->name('customers.popup.store')->middleware('auth');
 
 
 
@@ -70,7 +68,7 @@ Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupControll
     Route::get('orders/{order}/list-variant', [OrderController::class, 'listVariant'])->name('orders.list-variant');
     Route::get('orders/{order}/variants-list', [OrderController::class, 'variantsList'])->name('orders.variants-list');
     Route::post('orders/{order}/toggle-status', [OrderController::class, 'toggleStatus']);
-    Route::resource('orders', OrderController::class)->middleware('checkpermission');
+    Route::resource('orders', OrderController::class)->middleware('permission');
 
     Route::post('orders/{order}/add-variant', [OrderController::class, 'addVariant']);
     Route::post('orders/{order}/remove-variant', [OrderController::class, 'removeVariant']);
@@ -78,38 +76,38 @@ Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupControll
 
 
     // Quản lý danh mục
-    Route::resource('categories', CategoryController::class)->middleware('checkpermission');
+    Route::resource('categories', CategoryController::class)->middleware('permission');
 
     // Quản lý vai trò
-    Route::resource('roles', RoleController::class)->middleware('checkpermission'); 
+    Route::resource('roles', RoleController::class)->middleware('permission'); 
 
     // Quản lý quyền
-    //Route::resource('permissions', PermissionController::class);//->middleware('checkpermission');
+    //Route::resource('permissions', PermissionController::class);//->middleware('permission');
 
-    Route::resource('permissions', PermissionController::class)->middleware('checkpermission'); 
+    Route::resource('permissions', PermissionController::class)->middleware('permission'); 
 
 
     // Quản lý người dùng
-    Route::resource('users', UserController::class)->middleware('checkpermission');
+    Route::resource('users', UserController::class)->middleware('permission');
 
     // Ví dụ: khi sau này bạn thêm Customer
-    Route::get('customers/export', [CustomerController::class, 'export'])->name('customers.export')->middleware('checkpermission');
-    Route::get('customers/import', [CustomerController::class, 'importForm'])->name('customers.import.form')->middleware('checkpermission');
-    Route::post('customers/import', [CustomerController::class, 'import'])->name('customers.import')->middleware('checkpermission');
-    Route::resource('customers', CustomerController::class)->middleware('checkpermission');
+    Route::get('customers/export', [CustomerController::class, 'export'])->name('customers.export')->middleware('permission');
+    Route::get('customers/import', [CustomerController::class, 'importForm'])->name('customers.import.form')->middleware('permission');
+    Route::post('customers/import', [CustomerController::class, 'import'])->name('customers.import')->middleware('permission');
+    Route::resource('customers', CustomerController::class)->middleware('permission');
     // Xóa nhiều khách hàng
-    Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulkDelete')->middleware('checkpermission');
+    Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulkDelete')->middleware('permission');
     
-    Route::resource('customertype', CustomerTypeController::class)->middleware('checkpermission');
+    Route::resource('customertype', CustomerTypeController::class)->middleware('permission');
 
 
     // Route list toàn bộ địa chỉ (không cần customerId)
     Route::get('customers/list/addresses', [CustomerAddressController::class, 'list'])
-    ->name('customers.addresses.list')->middleware('checkpermission');
+    ->name('customers.addresses.list')->middleware('permission');
     //->middleware('permission:addresses.view'); // nếu bạn dùng middleware permission
 
-    //Route::resource('customeraddress', CustomerAddressController::class)->middleware('checkpermission');
-    Route::resource('customers.addresses', CustomerAddressController::class)->middleware('checkpermission');
+    //Route::resource('customeraddress', CustomerAddressController::class)->middleware('permission');
+    Route::resource('customers.addresses', CustomerAddressController::class)->middleware('permission');
     
     // Media 
     //Route::resource('media', MediaController::class);
@@ -138,6 +136,7 @@ Route::post('customers/popup/store', [App\Http\Controllers\CustomerPopupControll
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
     });
+    
 });
 
 
@@ -159,5 +158,4 @@ Route::resource('categories', CategoryController::class);
 */
 
 // Quản lý giao dịch
-Route::resource('transactions', App\Http\Controllers\TransactionController::class)->only(['index','create','store'])->middleware('checkpermission');
-
+Route::resource('transactions', App\Http\Controllers\TransactionController::class)->only(['index','create','store'])->middleware('permission');

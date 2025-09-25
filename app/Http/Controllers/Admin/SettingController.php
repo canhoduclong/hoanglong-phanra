@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers\Admin; 
+use App\Http\Controllers\Controller; 
 use Illuminate\Http\Request;
 use App\Models\Setting;
+ 
 
 class SettingController extends Controller
 {
+    /**
+     * Middleware để bảo vệ các route trong controller này
+     * Chỉ người dùng đã đăng nhập và có quyền 'manage-settings' mới có thể truy cập
+     */ 
     public function __construct()
     {
         $this->middleware('auth');

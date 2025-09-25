@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             // đăng ký alias 'permission' trỏ đến lớp của bạn
-            'checkpermission' => \App\Http\Middleware\PermissionMiddleware::class,
+            'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             // bạn có thể thêm 'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
     })

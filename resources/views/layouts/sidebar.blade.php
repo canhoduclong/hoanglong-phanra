@@ -164,6 +164,13 @@
 							</a>
 						</li>
 
+						<li class="nav-item">
+							<a href="{{ route('admin.settings.index') }}" class="nav-link{{ request()->routeIs('admin.settings.index') ? ' active' : '' }}">
+								<i class="ph-gear"></i>
+								<span>Settings</span>
+							</a>
+						</li>
+
 
 					</ul>
 					 <!-- Logout -->

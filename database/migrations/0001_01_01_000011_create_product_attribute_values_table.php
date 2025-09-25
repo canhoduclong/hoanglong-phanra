@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attributes', function (Blueprint $table) {
+        Schema::create('product_attribute_values', function (Blueprint $table) {
             $table->id();
-             $table->string('name')->nullable(); // ví dụ: Size, Color
+            $table->foreignId('attribute_id')->constrained('product_attributes')->onDelete('cascade');
+            $table->string('value');         // Ví dụ: 'Vịt cỏ', 'Nuôi công nghiệp'
+            $table->string('slug')->nullable(); // Ví dụ: 'vit-co', 'cong-nghiep'
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attributes');
+        Schema::dropIfExists('product_attribute_values');
     }
 };
