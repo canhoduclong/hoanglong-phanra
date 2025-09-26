@@ -1,38 +1,6 @@
 @extends('layouts.site')
 
-@section('header')
-<header class="p-3 mb-3 border-bottom">
-    <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
-                @if(isset($settings['logo']) && $settings['logo']->value)
-                    @php
-                        $media = App\Models\Media::find($settings['logo']->value);
-                    @endphp
-                    @if($media)
-                        <img src="{{ asset('storage/' . $media->file_path) }}" alt="logo" height="40">
-                    @endif
-                @else
-                    <h2>{{ $settings['brand_name']->value ?? 'My Website' }}</h2>
-                @endif
-            </a>
 
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
-            </ul>
-
-            <div class="text-end">
-                <p class="slogan">{{ $settings['slogan']->value ?? 'Your slogan here' }}</p>
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="btn btn-primary">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
-                @endauth
-            </div>
-        </div>
-    </div>
-</header>
-@endsection
 
 @section('content')
 <div class="container">

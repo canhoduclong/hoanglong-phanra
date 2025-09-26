@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             OrderItemSeeder::class,
             TaskSeeder::class,
+            SettingSeeder::class,
+            PostCategorySeeder::class,
+            TagSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }

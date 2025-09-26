@@ -9,17 +9,17 @@ class ProductVariantPolicy
 {
     public function viewAny(User $user)
     {
-        return $user->hasPermissionTo('product-variants.index');
+        return $user->hasPermission('product-variants.index');
     }
 
     public function update(User $user, ProductVariant $variant)
     {
-        return $user->hasPermissionTo('product-variants.edit');
+        return $user->hasPermission('product-variants.edit');
     }
 
     public function duplicate(User $user, ProductVariant $variant)
     {
         // Quyền mặc định: cho phép admin hoặc user có quyền 'product-variant.duplicate'
-        return $user->hasRole('admin') || $user->hasPermissionTo('product-variant.duplicate');
+        return $user->hasRole('admin') || $user->hasPermission('product-variant.duplicate');
     }
 }

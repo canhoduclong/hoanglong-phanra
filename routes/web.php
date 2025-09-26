@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CustomerPopupController;
 use App\Http\Controllers\OrderAjaxController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PostController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/variants', [HomeController::class, 'variants'])->name('site.variants');
 
@@ -159,3 +161,13 @@ Route::resource('categories', CategoryController::class);
 
 // Quản lý giao dịch
 Route::resource('transactions', App\Http\Controllers\TransactionController::class)->only(['index','create','store'])->middleware('permission');
+
+// Static Pages
+Route::get('/gioi-thieu', [PageController::class, 'about'])->name('pages.about');
+Route::get('/lien-he', [PageController::class, 'contact'])->name('pages.contact');
+Route::post('/lien-he', [PageController::class, 'storeContact'])->name('pages.contact.store');
+
+// Posts
+Route::get('/tin-tuc', [PostController::class, 'index'])->name('posts.index');
+Route::get('/tin-tuc/chuyen-muc/{category:slug}', [PostController::class, 'category'])->name('posts.category');
+Route::get('/tin-tuc/{post:slug}', [PostController::class, 'show'])->name('posts.show');
