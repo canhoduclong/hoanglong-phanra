@@ -85,6 +85,27 @@
 								</span>
 							</a>
 						</li>
+
+						<li class="nav-item-header">
+							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Content</div>
+							<i class="ph-dots-three sidebar-resize-show"></i>
+						</li>
+
+						<li class="nav-item nav-item-submenu">
+							<a href="{{ route('admin.posts.index') }}" class="nav-link">
+								<i class="ph-blogger"></i>
+								<span>Blog</span>
+							</a> 
+						</li>
+						<li class="nav-item nav-item-submenu">
+							<a href="{{ route('admin.post-categories.index') }}" class="nav-link"><span>Categories</span></a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ route('admin.pages.index') }}" class="nav-link">
+								<i class="ph-file-text"></i>
+								<span>Pages</span>
+							</a>
+						</li>
 						<li class="nav-item ">
 							<a href="{{ route('permissions.index') }}" class="nav-link">
 								<i class="ph-note-blank"></i>

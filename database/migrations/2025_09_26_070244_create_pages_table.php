@@ -11,21 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->string('title'); 
+            $table->string('title');
             $table->string('slug')->unique()->nullable();
-            $table->longText('content')->nullable();
-            $table->string('image')->nullable();
-            $table->boolean('is_published')->default(false);
-            $table->foreignId('post_category_id')
-                ->nullable() // cho phép null
-                ->constrained('post_categories')
-                ->nullOnDelete(); // nếu category bị xóa thì set NULL thay vì cascade
+            $table->text('content');
             $table->foreignId('user_id')
                 ->constrained('users')
-                ->onDelete('cascade');
+                ->onDelete('cascade')
+                 ->nullOnDelete(); // nếu user bị xóa thì set NULL thay vì cascade
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            
             $table->timestamps();
         });
     }
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('pages');
     }
 };

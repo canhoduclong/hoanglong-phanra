@@ -14,7 +14,12 @@ return new class extends Migration
         Schema::create('post_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique()->nullable();
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade')
+                 ->nullOnDelete(); // nếu user bị xóa thì set NULL thay vì cascade
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }
