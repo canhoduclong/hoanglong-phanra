@@ -70,9 +70,10 @@
 
             <div class="row">
                 @foreach($variants as $variant)
+                @if($variant->slug)
                 <div class="col-md-4 mb-4">
                     <div class="card">
-                        <a href="{{ route('pages.variant_detail', $variant) }}">
+                        <a href="{{ route('pages.variant_detail', $variant->slug) }}">
                             @if($variant->image)
                                 <img src="{{ asset('storage/' . $variant->image->file_path) }}" class="card-img-top" alt="{{ $variant->product->name }}">
                             @else
@@ -80,11 +81,11 @@
                             @endif
                         </a>
                         <div class="card-body">
-                            <h5 class="card-title"><a href="{{ route('pages.variant_detail', $variant) }}">{{ $variant->product->name }}</a></h5>
+                            <h5 class="card-title"><a href="{{ route('pages.variant_detail', $variant->slug) }}">{{ $variant->product->name }}</a></h5>
                             <p class="card-text">SKU: {{ $variant->sku }}</p>
                             <p class="card-text">Price: {{ number_format($variant->latestPriceRule?->price ?? 0) }}</p>
                             <p class="card-text">Stock: {{ $variant->stock }}</p>
-                            <a href="{{ route('pages.variant_detail', $variant) }}" class="btn btn-info btn-sm">View</a>
+                            <a href="{{ route('pages.variant_detail', $variant->slug) }}" class="btn btn-info btn-sm">View</a>
                             <button class="btn btn-success btn-sm order-btn" data-price="{{ $variant->latestPriceRule?->price ?? 0 }}">Order</button>
                             @can('update', $variant)
                                 <a href="{{ route('product-variants.edit', $variant->id) }}" class="btn btn-primary btn-sm">Edit</a>
@@ -92,6 +93,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 @endforeach
             </div>
 

@@ -154,6 +154,18 @@
 							</a>
 						</li>
 						<li class="nav-item ">
+							<a href="{{ route('warehouses.index') }}" class="nav-link{{ request()->routeIs('warehouses.*') ? ' active' : '' }}">
+								<i class="ph-storefront"></i>
+								<span>Warehouses</span>
+							</a>
+						</li>
+						<li class="nav-item ">
+							<a href="{{ route('inventories.index') }}" class="nav-link{{ request()->routeIs('inventories.*') ? ' active' : '' }}">
+								<i class="ph-package"></i>
+								<span>Inventories</span>
+							</a>
+						</li>
+						<li class="nav-item ">
 							<a href="{{ route('customers.index') }}" class="nav-link{{ request()->routeIs('customers.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
 								<span>Customer</span>

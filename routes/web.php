@@ -10,6 +10,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTypeController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\PermissionAddressController;
 use App\Http\Controllers\MediaController;
@@ -105,6 +107,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulkDelete')->middleware('permission');
     
     Route::resource('customertype', CustomerTypeController::class)->middleware('permission');
+    Route::resource('warehouses', WarehouseController::class)->middleware('permission');
+    Route::resource('inventories', InventoryController::class)->middleware('permission');
 
 
     // Route list toàn bộ địa chỉ (không cần customerId)
@@ -175,6 +179,7 @@ Route::get('/lien-he', [PageController::class, 'contact'])->name('pages.contact'
 Route::post('/lien-he', [PageController::class, 'storeContact'])->name('pages.contact.store');
 Route::get('/san-pham/{category:slug?}', [PageController::class, 'productsByCategory'])->name('pages.products_by_category');
 Route::get('/danh-sach-san-pham/{category:slug?}', [PageController::class, 'productList'])->name('pages.product_list');
+Route::get('/product/{product:slug}', [PageController::class, 'productDetail'])->name('pages.product_detail');
 Route::get('/variant/{variant:slug}', [PageController::class, 'variantDetail'])->name('pages.variant_detail');
 Route::get('/my-dashboard', [PageController::class, 'myDashboard'])->name('pages.my_dashboard');
 Route::post('/my-dashboard', [PageController::class, 'updateProfile'])->name('pages.update_profile');

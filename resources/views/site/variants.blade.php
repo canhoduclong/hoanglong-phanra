@@ -71,19 +71,22 @@
                 </thead>
                 <tbody>
                     @foreach($variants as $variant)
+                    @if($variant->slug)
                     <tr>
-                        <td>{{ $variant->product->name }}</td>
+                        <td><a href="{{ route('pages.variant_detail', $variant->slug) }}">{{ $variant->product->name }}</a></td>
                         <td>{{ $variant->sku }}</td>
                         <td>{{ $variant->production_date }}</td>
                         <td>{{ number_format($variant->latestPriceRule?->price ?? 0) }}</td>
                         <td>{{ $variant->stock }}</td>
                         <td>
+                            <a href="{{ route('pages.variant_detail', $variant->slug) }}" class="btn btn-info btn-sm">View</a>
                             <button class="btn btn-success btn-sm order-btn" data-price="{{ $variant->latestPriceRule?->price ?? 0 }}">Order</button>
                             @can('update', $variant)
                                 <a href="{{ route('product-variants.edit', $variant->id) }}" class="btn btn-primary btn-sm">Edit</a>
                             @endcan
                         </td>
                     </tr>
+                    @endif
                     @endforeach
                 </tbody>
             </table>

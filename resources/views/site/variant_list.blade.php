@@ -40,18 +40,18 @@
         <div class="col-md-3">
             <h4>Categories</h4>
             <div class="list-group">
-                <a href="{{ route('pages.product_list') }}" class="list-group-item list-group-item-action {{ !isset($category) ? 'active' : '' }}">
+                <a href="{{ route('pages.variant_list') }}" class="list-group-item list-group-item-action {{ !isset($category) ? 'active' : '' }}">
                     All Categories
                 </a>
                 @foreach($categories as $cat)
-                    <a href="{{ route('pages.product_list', ['category' => $cat->slug]) }}" class="list-group-item list-group-item-action {{ (isset($category) && $category->id == $cat->id) ? 'active' : '' }}">
+                    <a href="{{ route('pages.variant_list', ['category' => $cat->slug]) }}" class="list-group-item list-group-item-action {{ (isset($category) && $category->id == $cat->id) ? 'active' : '' }}">
                         {{ $cat->name }}
                     </a>
                 @endforeach
             </div>
         </div>
         <div class="col-md-9">
-            <h1>Products</h1>
+            <h1>variants</h1>
 
             <div class="card">
                 <div class="card-body">
@@ -59,32 +59,32 @@
                         <thead>
                             <tr>
                                 <th>Image</th>
-                                <th>Product</th>
+                                <th>variant</th>
                                 <th>Price</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($products as $product)
+                            @foreach($variants as $variant)
                             <tr>
                                 <td>
-                                    @if($product->avatar && $product->avatar->media)
-                                        <img src="{{ asset('storage/' . $product->avatar->media->file_path) }}" alt="{{ $product->name }}" width="80">
+                                    @if($variant->avatar && $variant->avatar->media)
+                                        <img src="{{ asset('storage/' . $variant->avatar->media->file_path) }}" alt="{{ $variant->name }}" width="80">
                                     @else
                                         <img src="https://via.placeholder.com/80" alt="placeholder" width="80">
                                     @endif
                                 </td>
-                                <td>{{ $product->name }}</td>
+                                <td>{{ $variant->name }}</td>
                                 <td></td>
                                 <td>
-                                    <a href="{{ route('pages.product_detail', $product->slug) }}" class="btn btn-info btn-sm">View Details</a>
+                                    <a href="{{ route('pages.variant_detail', $variant->slug) }}" class="btn btn-info btn-sm">View Details</a>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
 
-                    {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
+                    {{ $variants->appends(request()->query())->links('pagination::bootstrap-5') }}
                 </div>
             </div>
         </div>

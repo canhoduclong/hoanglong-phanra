@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\Setting;
 use App\Models\Page;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
@@ -136,21 +137,36 @@ class PageController extends Controller
     {
         $settings = Setting::all()->keyBy('key');
         $categories = \App\Models\Category::all();
-        $query = \App\Models\ProductVariant::query()->where('stock', '>', 0);
-
-        if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
-        }
+        $query = \App\Models\Product::query();
 
         if ($category) {
-            $query->whereHas('product', function ($q) use ($category) {
-                $q->where('category_id', $category->id);
-            });
+            $query->where('category_id', $category->id);
         }
 
-        $variants = $query->with('product', 'latestPriceRule')->paginate(10);
+        $products = $query->with('avatar.media')->paginate(10);
 
-        return view('site.product_list', compact('variants', 'settings', 'categories', 'category'));
+        return view('site.product_list', compact('products', 'settings', 'categories', 'category'));
+    }
+
+    public function productDetail(\App\Models\Product $product)
+    {
+        $settings = Setting::all()->keyBy('key');
+
+        // Eager load all the necessary relationships for the view and JS module
+        $product->load([
+            'gallery.media', 
+            'variants.values.attribute', 
+            'variants.media', 
+            'variants.latestPriceRule'
+        ]);
+
+        // Group variants by their attributes for easier handling in the view
+        $attributes = $product->variants
+            ->flatMap(fn($variant) => $variant->values)
+            ->unique('id')
+            ->groupBy('attribute.name');
+
+        return view('site.product_detail', compact('product', 'settings', 'attributes'));
     }
 
     public function myDashboard(Request $request)
