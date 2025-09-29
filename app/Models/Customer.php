@@ -64,4 +64,10 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
+    
 }

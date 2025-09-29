@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 class AttributeValue extends Model
 {
     use HasFactory;
+    protected $table = 'product_attribute_values';
 
     public function attribute()
     {

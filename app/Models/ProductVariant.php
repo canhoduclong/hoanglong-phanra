@@ -9,7 +9,20 @@ use Illuminate\Support\Str;
 class ProductVariant extends Model
 {
     use HasFactory;
-    protected $fillable = ['product_id', 'sku', 'size', 'quality', 'production_date', 'stock']; // đã có sku, giá xử lý qua priceRules
+    protected $fillable = ['product_id', 'sku', 'slug', 'size', 'quality', 'production_date', 'stock']; // đã có sku, giá xử lý qua priceRules
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($variant) {
+            if (empty($variant->slug)) {
+                $productName = $variant->product->name;
+                $attributes = $variant->values->pluck('value')->implode('-');
+                $variant->slug = Str::slug($productName . '-' . $attributes . '-' . time());
+            }
+        });
+    }
 
     // Liên kết media cho biến thể (1 ảnh)
     public function mediaLink()
@@ -30,7 +43,7 @@ class ProductVariant extends Model
     }
     public function values()
     {
-        return $this->belongsToMany(AttributeValue::class, 'product_variant_values');
+        return $this->belongsToMany(AttributeValue::class, 'product_variant_values', 'product_variant_id', 'product_attribute_value_id');
     }
 
     public function priceRules()

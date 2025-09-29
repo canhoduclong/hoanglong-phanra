@@ -29,7 +29,16 @@ use App\Models\Setting;
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="{{ route('home') }}" class="nav-link px-2 link-secondary">Trang chủ</a></li>
                     <li><a href="{{ route('pages.about') }}" class="nav-link px-2 link-dark">Giới thiệu</a></li>
-                    <li><a href="{{ route('site.variants') }}" class="nav-link px-2 link-dark">Sản phẩm</a></li> 
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sản phẩm
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item"  href="{{ route('site.variants') }}" >Biến thể mới</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pages.products_by_category') }}">Sản phẩm (phân loại)</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pages.product_list') }}">Sản phẩm (danh sách)</a></li>
+                        </ul>
+                    </li>
                     <li><a href="{{ route('posts.list') }}" class="nav-link px-2 link-dark">Tin tức</a></li>
                     <li><a href="{{ route('pages.contact') }}" class="nav-link px-2 link-dark">Liên hệ</a></li>
                 </ul>
@@ -37,7 +46,27 @@ use App\Models\Setting;
                 <div class="text-end">
                     <p class="slogan">{{ $settings['slogan']->value ?? 'Your slogan here' }}</p>
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-primary">Dashboard</a>
+                        <div class="dropdown">
+                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                                <li><a class="dropdown-item" href="{{ route('pages.my_dashboard') }}">Hồ sơ</a></li>
+                                <li><a class="dropdown-item" href="{{ route('pages.my_orders') }}">Đơn hàng của bạn</a></li>
+                                <li><a class="dropdown-item" href="{{ url('/dashboard') }}">Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        Đăng xuất
+                                    </a>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     @else
                         <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
                     @endauth

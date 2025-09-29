@@ -173,6 +173,16 @@ Route::resource('transactions', TransactionController::class)->only(['index','cr
 Route::get('/gioi-thieu', [PageController::class, 'about'])->name('pages.about');
 Route::get('/lien-he', [PageController::class, 'contact'])->name('pages.contact');
 Route::post('/lien-he', [PageController::class, 'storeContact'])->name('pages.contact.store');
+Route::get('/san-pham/{category:slug?}', [PageController::class, 'productsByCategory'])->name('pages.products_by_category');
+Route::get('/danh-sach-san-pham/{category:slug?}', [PageController::class, 'productList'])->name('pages.product_list');
+Route::get('/variant/{variant:slug}', [PageController::class, 'variantDetail'])->name('pages.variant_detail');
+Route::get('/my-dashboard', [PageController::class, 'myDashboard'])->name('pages.my_dashboard');
+Route::post('/my-dashboard', [PageController::class, 'updateProfile'])->name('pages.update_profile');
+Route::get('/my-orders', [PageController::class, 'myOrders'])->name('pages.my_orders');
+
+Route::get('/page/{slug}', [PageController::class, 'show'])->name('pages.show');
+
+//Route::get('/{slug}', [PageController::class, 'show'])->name('page.show');
 
 // Posts
 Route::get('/tin-tuc', [PostController::class, 'list'])->name('posts.list');

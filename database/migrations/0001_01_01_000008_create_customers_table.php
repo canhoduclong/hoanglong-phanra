@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');                // Tên khách hàng
-            $table->string('email')->unique()->nullable();     // Email duy nhất
-            $table->string('phone')->nullable();   // SĐT
+            $table->foreignId('user_id')->nullable()->unique()->constrained()->onDelete('cascade'); // Nhân viên phụ trách
+            $table->string('name');                
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable(); 
             $table->date('dob')->nullable(); 
-            $table->string('note')->nullable();   // SĐT      // Ngày sinh
-            $table->enum('gender', ['male','female','other'])->nullable(); // Giới tính
+            $table->string('note')->nullable();
+            $table->enum('gender', ['male','female','other'])->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active'); // Trạng thái 
             $table->foreignId('customer_type_id')->nullable()->constrained()->onDelete('set null'); // Loại khách hàng
-            $table->foreignId('assigned_to')->nullable()->constrained('users');
+            $table->foreignId('assigned_to')->nullable()->constrained('users'); // Nhân viên phụ trách
             $table->timestamps();
         });
     }
