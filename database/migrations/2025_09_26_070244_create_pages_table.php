@@ -16,10 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique()->nullable();
             $table->text('content');
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->onDelete('cascade')
-                 ->nullOnDelete(); // nếu user bị xóa thì set NULL thay vì cascade
+           $table->unsignedBigInteger('user_id')->nullable(); // người tạo
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             
             $table->timestamps();
