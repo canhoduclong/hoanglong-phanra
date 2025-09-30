@@ -166,6 +166,18 @@
 							</a>
 						</li>
 						<li class="nav-item ">
+							<a href="{{ route('inventory-movements.index') }}" class="nav-link{{ request()->routeIs('inventory-movements.*') ? ' active' : '' }}">
+								<i class="ph-arrows-left-right"></i>
+								<span>Inventory Movements</span>
+							</a>
+						</li>
+						<li class="nav-item ">
+							<a href="{{ route('inventory-documents.index') }}" class="nav-link{{ request()->routeIs('inventory-documents.*') ? ' active' : '' }}">
+								<i class="ph-files"></i>
+								<span>Inventory Documents</span>
+							</a>
+						</li>
+						<li class="nav-item ">
 							<a href="{{ route('customers.index') }}" class="nav-link{{ request()->routeIs('customers.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
 								<span>Customer</span>

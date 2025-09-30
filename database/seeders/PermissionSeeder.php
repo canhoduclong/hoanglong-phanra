@@ -61,6 +61,32 @@ class PermissionSeeder extends Seeder
             ]
         );
 
+        // Add inventories and warehouses permissions
+        $newPermissions = [
+            // Inventories
+            ['name' => 'inventories.view', 'description' => 'View inventories', 'group' => 'inventories'],
+            ['name' => 'inventories.create', 'description' => 'Create inventories', 'group' => 'inventories'],
+            ['name' => 'inventories.edit', 'description' => 'Edit inventories', 'group' => 'inventories'],
+            ['name' => 'inventories.delete', 'description' => 'Delete inventories', 'group' => 'inventories'],
+            // Warehouses
+            ['name' => 'warehouses.view', 'description' => 'View warehouses', 'group' => 'warehouses'],
+            ['name' => 'warehouses.create', 'description' => 'Create warehouses', 'group' => 'warehouses'],
+            ['name' => 'warehouses.edit', 'description' => 'Edit warehouses', 'group' => 'warehouses'],
+            ['name' => 'warehouses.delete', 'description' => 'Delete warehouses', 'group' => 'warehouses'],
+        ];
+
+        foreach ($newPermissions as $perm) {
+            DB::table('permissions')->updateOrInsert(
+                ['name' => $perm['name']],
+                [
+                    'description' => $perm['description'],
+                    'group' => $perm['group'],
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        }
+
         // Gán tất cả quyền cho role admin
         $adminRole = DB::table('roles')->where('name', 'admin')->first();
         if ($adminRole) {

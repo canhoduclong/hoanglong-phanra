@@ -41,7 +41,8 @@
         }
         payFullOrder.addEventListener('change', function() {
             if (payFullOrder.checked && remain > 0) {
-                amountInput.value = remain.toLocaleString('vi-VN');
+                amountInput.value = remain;
+                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
                 amountInput.readOnly = true;
             } else {
                 amountInput.value = '';

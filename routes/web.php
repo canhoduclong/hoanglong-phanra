@@ -12,6 +12,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerTypeController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryMovementController;
+use App\Http\Controllers\InventoryDocumentController;
 use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\PermissionAddressController;
 use App\Http\Controllers\MediaController;
@@ -109,6 +111,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('customertype', CustomerTypeController::class)->middleware('permission');
     Route::resource('warehouses', WarehouseController::class)->middleware('permission');
     Route::resource('inventories', InventoryController::class)->middleware('permission');
+    Route::resource('inventory-movements', InventoryMovementController::class)->middleware('permission');
+    Route::resource('inventory-documents', InventoryDocumentController::class)->middleware('permission');
 
 
     // Route list toàn bộ địa chỉ (không cần customerId)
