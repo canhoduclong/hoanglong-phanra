@@ -1,26 +1,19 @@
-<div class="form-group mb-3">
+<div class="mb-3">
     <label for="name" class="form-label">Name</label>
-    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $warehouse->name ?? '') }}" required>
-    @error('name')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $warehouse->name ?? '') }}" required>
 </div>
-
-<div class="form-group mb-3">
+<div class="mb-3">
     <label for="address" class="form-label">Address</label>
-    <textarea name="address" id="address" class="form-control @error('address') is-invalid @enderror" rows="3">{{ old('address', $warehouse->address ?? '') }}</textarea>
-    @error('address')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+    <textarea class="form-control" id="address" name="address">{{ old('address', $warehouse->address ?? '') }}</textarea>
 </div>
-
-<div class="form-group mb-3">
+<div class="mb-3">
     <label for="phone" class="form-label">Phone</label>
-    <input type="text" name="phone" id="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', $warehouse->phone ?? '') }}">
-    @error('phone')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+    <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $warehouse->phone ?? '') }}">
 </div>
-
-<button type="submit" class="btn btn-primary">Submit</button>
-<a href="{{ route('warehouses.index') }}" class="btn btn-secondary">Cancel</a>
+<div class="mb-3">
+    <label for="status" class="form-label">Status</label>
+    <select class="form-select" id="status" name="status" required>
+        <option value="1" {{ old('status', $warehouse->status ?? '') == 1 ? 'selected' : '' }}>Active</option>
+        <option value="0" {{ old('status', $warehouse->status ?? '') == 0 ? 'selected' : '' }}>Inactive</option>
+    </select>
+</div>

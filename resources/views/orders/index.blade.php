@@ -114,6 +114,7 @@
                     <th>Đã thanh toán</th>
                     <th>Ngày tạo</th>
                     <th>Thao tác</th>
+                    <th>QR Code</th>
                 </tr>
             </thead>
             <tbody>
@@ -164,6 +165,11 @@
                         </form>
                         @if($order->status !== \App\Models\Order::STATUS_COMPLETED && !$order->isPaid())
                             <a href="{{ route('transactions.create', ['order_id' => $order->id]) }}" class="btn btn-success btn-sm">Thanh toán</a>
+                        @endif
+                    </td>
+                    <td>
+                        @if($order->qr_code)
+                            <img src="data:image/svg+xml;base64,{{ $order->qr_code }}" alt="QR Code">
                         @endif
                     </td>
                 </tr>

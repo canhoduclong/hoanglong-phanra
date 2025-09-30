@@ -203,3 +203,12 @@ Route::get('/page/{slug}', [PageController::class, 'show'])->name('pages.show');
 Route::get('/tin-tuc', [PostController::class, 'list'])->name('posts.list');
 Route::get('/tin-tuc/chuyen-muc/{category:slug}', [PostController::class, 'category'])->name('posts.category');
 Route::get('/tin-tuc/{post:slug}', [PostController::class, 'show'])->name('posts.show');
+
+Route::get('/test-variant', function () {
+    try {
+        $variant = \App\Models\ProductVariant::factory()->create();
+        return response()->json($variant);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});

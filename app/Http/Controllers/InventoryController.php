@@ -11,7 +11,8 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        //
+        $inventories = \App\Models\Inventory::paginate(10);
+        return view('inventories.index', compact('inventories'));
     }
 
     /**

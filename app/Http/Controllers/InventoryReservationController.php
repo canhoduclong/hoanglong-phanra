@@ -11,7 +11,8 @@ class InventoryReservationController extends Controller
      */
     public function index()
     {
-        //
+        $reservations = \App\Models\InventoryReservation::with(['orderItem', 'inventory'])->paginate(10);
+        return view('inventory-reservations.index', compact('reservations'));
     }
 
     /**

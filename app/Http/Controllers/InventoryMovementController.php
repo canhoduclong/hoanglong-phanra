@@ -11,7 +11,8 @@ class InventoryMovementController extends Controller
      */
     public function index()
     {
-        //
+        $movements = \App\Models\InventoryMovement::with(['inventory', 'user', 'reference'])->paginate(10);
+        return view('inventory-movements.index', compact('movements'));
     }
 
     /**

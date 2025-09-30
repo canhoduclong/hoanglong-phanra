@@ -8,7 +8,8 @@ class Order extends Model
     use HasFactory;
     protected $fillable = [
         'customer_id', 'user_id', 'code', 'total', 'status',
-        'amount_paid', 'amount_due', 'payment_method', 'payment_status'
+        'amount_paid', 'amount_due', 'payment_method', 'payment_status',
+        'qr_code'
     ];
     
     public function approvals()

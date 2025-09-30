@@ -2,12 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Category;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-class ProductFactory extends Factory
+class CategoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -16,15 +14,12 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->words(3, true);
+        $name = $this->faker->words(2, true);
         return [
             'name' => $name,
             'slug' => Str::slug($name),
             'description' => $this->faker->sentence(),
-            'price' => $this->faker->randomFloat(2, 10, 1000),
-            'stock' => $this->faker->numberBetween(0, 100),
-            'user_id' => User::factory(),
-            'category_id' => Category::factory(),
+            'parent_id' => null,
         ];
     }
 }

@@ -11,7 +11,8 @@ class OrderReturnController extends Controller
      */
     public function index()
     {
-        //
+        $returns = \App\Models\OrderReturn::with(['order', 'customer'])->paginate(10);
+        return view('order-returns.index', compact('returns'));
     }
 
     /**

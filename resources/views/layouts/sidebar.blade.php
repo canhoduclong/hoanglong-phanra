@@ -55,7 +55,7 @@
 						<form method="POST" action="{{ route('logout') }}">
 							@csrf
 							<button class="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700">
-								Đăng xuất
+								{{ __('menu.logout') }}
 							</button>
 						</form>
 
@@ -80,68 +80,68 @@
 							<a href="{{ route('dashboard') }}" class="nav-link active">
 								<i class="ph-house"></i>
 								<span>
-									Dashboard
+									{{ __('menu.dashboard') }}
 									<span class="d-block fw-normal opacity-50">No pending orders</span>
 								</span>
 							</a>
 						</li>
 
 						<li class="nav-item-header">
-							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Content</div>
+							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">{{ __('menu.content') }}</div>
 							<i class="ph-dots-three sidebar-resize-show"></i>
 						</li>
 
 						<li class="nav-item nav-item-submenu">
 							<a href="{{ route('admin.posts.index') }}" class="nav-link">
 								<i class="ph-blogger"></i>
-								<span>Blog</span>
+								<span>{{ __('menu.blog') }}</span>
 							</a> 
 						</li>
 						<li class="nav-item nav-item-submenu">
-							<a href="{{ route('admin.post-categories.index') }}" class="nav-link"><span>Categories</span></a>
+							<a href="{{ route('admin.post-categories.index') }}" class="nav-link"><span>{{ __('menu.categories') }}</span></a>
 						</li>
 						<li class="nav-item">
 							<a href="{{ route('admin.pages.index') }}" class="nav-link">
 								<i class="ph-file-text"></i>
-								<span>Pages</span>
+								<span>{{ __('menu.pages') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('permissions.index') }}" class="nav-link">
 								<i class="ph-note-blank"></i>
-								<span>Quyền - Tính năng</span>
+								<span>{{ __('menu.permissions') }}</span>
 							</a>
 						</li>
 						
 						<li class="nav-item ">
 							<a href="{{ route('roles.index') }}" class="nav-link">
 								<i class="ph-note-blank"></i>
-								<span>Roles - Vai trò</span>
+								<span>{{ __('menu.roles') }}</span>
 							</a>
 						</li>
 						
 						<li class="nav-item ">
 							<a href="{{ route('users.index') }}" class="nav-link">
 								<i class="ph-note-blank"></i>
-								<span>User</span>
+								<span>{{ __('menu.users') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('products.index') }}" class="nav-link{{ request()->routeIs('products.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Product</span>
+								<span>{{ __('menu.products') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('product-variants.index') }}" class="nav-link{{ request()->routeIs('product-variants.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Product Variants</span>
+								<span>{{ __('menu.product_variants') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('categories.index') }}" class="nav-link{{ request()->routeIs('categories.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Categories</span>
+								<span>{{ __('menu.categories') }}</span>
 							</a>
 						</li>
                        
@@ -150,87 +150,87 @@
 						<li class="nav-item ">
 							<a href="{{ route('customertype.index') }}" class="nav-link{{ request()->routeIs('customertype.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Customer Type</span>
+								<span>{{ __('menu.customer_type') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('warehouses.index') }}" class="nav-link{{ request()->routeIs('warehouses.*') ? ' active' : '' }}">
 								<i class="ph-storefront"></i>
-								<span>Warehouses</span>
+								<span>{{ __('menu.warehouses') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('inventories.index') }}" class="nav-link{{ request()->routeIs('inventories.*') ? ' active' : '' }}">
 								<i class="ph-package"></i>
-								<span>Inventories</span>
+								<span>{{ __('menu.inventories') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('inventory-movements.index') }}" class="nav-link{{ request()->routeIs('inventory-movements.*') ? ' active' : '' }}">
 								<i class="ph-arrows-left-right"></i>
-								<span>Inventory Movements</span>
+								<span>{{ __('menu.inventory_movements') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('inventory-documents.index') }}" class="nav-link{{ request()->routeIs('inventory-documents.*') ? ' active' : '' }}">
 								<i class="ph-files"></i>
-								<span>Inventory Documents</span>
+								<span>{{ __('menu.inventory_documents') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('inventory-adjustments.index') }}" class="nav-link{{ request()->routeIs('inventory-adjustments.*') ? ' active' : '' }}">
 								<i class="ph-wrench"></i>
-								<span>Inventory Adjustments</span>
+								<span>{{ __('menu.inventory_adjustments') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('inventory-reservations.index') }}" class="nav-link{{ request()->routeIs('inventory-reservations.*') ? ' active' : '' }}">
 								<i class="ph-timer"></i>
-								<span>Inventory Reservations</span>
+								<span>{{ __('menu.inventory_reservations') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('order-returns.index') }}" class="nav-link{{ request()->routeIs('order-returns.*') ? ' active' : '' }}">
 								<i class="ph-arrow-u-left-left"></i>
-								<span>Order Returns</span>
+								<span>{{ __('menu.order_returns') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('customers.index') }}" class="nav-link{{ request()->routeIs('customers.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Customer</span>
+								<span>{{ __('menu.customers') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('orders.index') }}" class="nav-link{{ request()->routeIs('orders.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Đơn hàng</span>
+								<span>{{ __('menu.orders') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('customers.addresses.list' ) }}" class="nav-link">
 								<i class="ph-note-blank"></i>
-								<span>Customer Address</span>
+								<span>{{ __('menu.customer_address') }}</span>
 							</a>
 						</li>
 						
 						<li class="nav-item ">
 							<a href="{{ route('media.index' ) }}" class="nav-link{{ request()->routeIs('media.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Media</span>
+								<span>{{ __('menu.media') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
 							<a href="{{ route('transactions.index') }}" class="nav-link{{ request()->routeIs('transactions.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
-								<span>Giao dịch</span>
+								<span>{{ __('menu.transactions') }}</span>
 							</a>
 						</li>
 
 						<li class="nav-item">
 							<a href="{{ route('admin.settings.index') }}" class="nav-link{{ request()->routeIs('admin.settings.index') ? ' active' : '' }}">
 								<i class="ph-gear"></i>
-								<span>Settings</span>
+								<span>{{ __('menu.settings') }}</span>
 							</a>
 						</li>
 

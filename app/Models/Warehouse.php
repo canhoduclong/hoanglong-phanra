@@ -13,5 +13,10 @@ class Warehouse extends Model
         'name',
         'address',
         'phone',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
 }

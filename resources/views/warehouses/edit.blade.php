@@ -1,24 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Warehouse')
-
 @section('content')
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Warehouse</h1>
-    </div>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Warehouse Details</h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('warehouses.update', $warehouse->id) }}" method="POST">
-                @csrf
-                @method('PUT')
-                @include('warehouses._form')
-            </form>
-        </div>
-    </div>
+<div class="container">
+    <h1>Edit Warehouse</h1>
+    <form action="{{ route('warehouses.update', $warehouse) }}" method="POST">
+        @csrf
+        @method('PUT')
+        @include('warehouses._form')
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
 </div>
 @endsection
