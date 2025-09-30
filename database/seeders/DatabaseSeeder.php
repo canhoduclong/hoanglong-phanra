@@ -32,6 +32,9 @@ class DatabaseSeeder extends Seeder
             PostCategorySeeder::class,
             TagSeeder::class,
             PostSeeder::class,
+            InventoryReservationSeeder::class,
+            OrderReturnSeeder::class,
+            ReturnItemSeeder::class,
         ]);
     }
 }

@@ -178,6 +178,24 @@
 							</a>
 						</li>
 						<li class="nav-item ">
+							<a href="{{ route('inventory-adjustments.index') }}" class="nav-link{{ request()->routeIs('inventory-adjustments.*') ? ' active' : '' }}">
+								<i class="ph-wrench"></i>
+								<span>Inventory Adjustments</span>
+							</a>
+						</li>
+						<li class="nav-item ">
+							<a href="{{ route('inventory-reservations.index') }}" class="nav-link{{ request()->routeIs('inventory-reservations.*') ? ' active' : '' }}">
+								<i class="ph-timer"></i>
+								<span>Inventory Reservations</span>
+							</a>
+						</li>
+						<li class="nav-item ">
+							<a href="{{ route('order-returns.index') }}" class="nav-link{{ request()->routeIs('order-returns.*') ? ' active' : '' }}">
+								<i class="ph-arrow-u-left-left"></i>
+								<span>Order Returns</span>
+							</a>
+						</li>
+						<li class="nav-item ">
 							<a href="{{ route('customers.index') }}" class="nav-link{{ request()->routeIs('customers.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
 								<span>Customer</span>
