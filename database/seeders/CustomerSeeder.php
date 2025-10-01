@@ -8,6 +8,11 @@ class CustomerSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('customers')->truncate();
+        DB::table('customer_addresses')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $types = DB::table('customer_types')->pluck('id', 'name');
         $users = DB::table('users')->pluck('id');
         $data = [];

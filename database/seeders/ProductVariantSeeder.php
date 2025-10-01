@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProductVariantSeeder extends Seeder
 {
@@ -13,6 +14,12 @@ class ProductVariantSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('product_variants')->truncate();
+        DB::table('product_variant_values')->truncate();
+        DB::table('product_attribute_values')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $products = \DB::table('products')->get();
         $data = [];
         $skuBase = 'SKU';
@@ -26,9 +33,11 @@ class ProductVariantSeeder extends Seeder
 
                 $slugString = $product->name . ' ' . $size . ' ' . $quality;
 
+                $name = $product->name . ' ' . $size . ' ' . $quality;
                 $data[] = [
                     'product_id' => $product->id,
                     'sku' => $skuBase . ($i+1) . $j,
+                    'name' => $name,
                     'slug' => Str::slug($slugString),
                     'size' => $size,
                     'quality' => $quality,

@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProductSeeder extends Seeder
 {
@@ -14,6 +15,10 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('products')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         $products = [
             'Vịt bọng - không sọ, không chân',
             'Vịt bọng ngắn - không sọ, không cổ, không chân',
