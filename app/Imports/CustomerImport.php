@@ -9,6 +9,12 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class CustomerImport implements ToModel, WithHeadingRow, WithValidation
 {
+    protected $userId;
+
+    public function __construct()
+    {
+        $this->userId = auth()->id();
+    }
 
     public function model(array $row)
     {
@@ -17,10 +23,12 @@ class CustomerImport implements ToModel, WithHeadingRow, WithValidation
             'name' => $row['name'] ?? null,
             'phone' => $row['phone'] ?? null,
             'email' => $row['email'] ?? null,
+            'website' => $row['website'] ?? null,
             'gender' => $row['gender'] ?? null,
             'dob' => $row['dob'] ?? null,
             'customer_type_id' => $row['customer_type_id'] ?? null,
             'note' => $row['note'] ?? null,
+            'assigned_to' => $this->userId,
         ]);
         $customer->save();
         // Nếu có cột address, tạo CustomerAddress mặc định
@@ -40,7 +48,8 @@ class CustomerImport implements ToModel, WithHeadingRow, WithValidation
             '*.name' => 'required|string|max:255',
             '*.phone' => 'required|string|max:30',
             '*.address' => 'required|string',
-            '*.email' => 'nullable|email',
+            '*.email' => 'nullable|email|unique:customers,email',
+            '*.website' => 'nullable|url',
         ];
     }
 }

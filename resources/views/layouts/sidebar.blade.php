@@ -2,8 +2,8 @@
 			<div class="sidebar-section bg-black bg-opacity-10 border-bottom border-bottom-white border-opacity-10">
 				<div class="sidebar-logo d-flex justify-content-center align-items-center">
 					<a href="index.html" class="d-inline-flex align-items-center py-2">
-						<img src="assets/images/logo_icon.svg" class="sidebar-logo-icon" alt="">
-						<img src="assets/images/logo_text_light.svg" class="sidebar-resize-hide ms-3" height="14" alt="">
+						<img src="/assets/images/logo_icon.svg" class="sidebar-logo-icon" alt="">
+						<img src="/assets/images/logo_text_light.svg" class="sidebar-resize-hide ms-3" height="14" alt="">
 					</a>
 
 					<div class="sidebar-resize-hide ms-auto">
@@ -27,7 +27,11 @@
 				<div class="sidebar-section sidebar-resize-hide dropdown mx-2">
 					<a href="#" class="btn btn-link text-body text-start lh-1 dropdown-toggle p-2 my-1 w-100" data-bs-toggle="dropdown" data-color-theme="dark">
 						<div class="hstack gap-2 flex-grow-1 my-1">
-							<img src="assets/images/brands/shell.svg" class="w-32px h-32px" alt="">
+                            @if(Auth::user()->avatar)
+							<img src="/{{ Auth::user()->avatar }}" class="w-32px h-32px rounded-pill" alt="">
+                            @else
+							<img src="/assets/images/brands/shell.svg" class="w-32px h-32px" alt="">
+                            @endif
 							<div class="me-auto">
 								<div class="fs-sm text-white opacity-75 mb-1">{{ auth()->user()->roles()->first()->name ?? '' }}</div>
 								<div class="fw-semibold">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
@@ -52,7 +56,9 @@
 							</div>
 						</div>
 
-						<form method="POST" action="{{ route('logout') }}">
+                        <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm mt-2">Profile</a>
+
+						<form method="POST" action="{{ route('logout') }}" class="mt-2">
 							@csrf
 							<button class="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700">
 								{{ __('menu.logout') }}
@@ -85,20 +91,11 @@
 								</span>
 							</a>
 						</li>
-
-						<li class="nav-item-header">
-							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">{{ __('menu.content') }}</div>
-							<i class="ph-dots-three sidebar-resize-show"></i>
-						</li>
-
 						<li class="nav-item nav-item-submenu">
 							<a href="{{ route('admin.posts.index') }}" class="nav-link">
-								<i class="ph-blogger"></i>
+								<i class="ph-note-blank"></i>
 								<span>{{ __('menu.blog') }}</span>
 							</a> 
-						</li>
-						<li class="nav-item nav-item-submenu">
-							<a href="{{ route('admin.post-categories.index') }}" class="nav-link"><span>{{ __('menu.categories') }}</span></a>
 						</li>
 						<li class="nav-item">
 							<a href="{{ route('admin.pages.index') }}" class="nav-link">
@@ -106,6 +103,16 @@
 								<span>{{ __('menu.pages') }}</span>
 							</a>
 						</li>
+						<li class="nav-item ">
+							<a href="{{ route('media.index' ) }}" class="nav-link{{ request()->routeIs('media.*') ? ' active' : '' }}">
+								<i class="ph-note-blank"></i>
+								<span>{{ __('menu.media') }}</span>
+							</a>
+						</li>
+						<li class="nav-item nav-item-submenu">
+							<a href="{{ route('admin.post-categories.index') }}" class="nav-link"><span>{{ __('menu.categories') }}</span></a>
+						</li>
+						
 						<li class="nav-item ">
 							<a href="{{ route('permissions.index') }}" class="nav-link">
 								<i class="ph-note-blank"></i>
@@ -127,6 +134,12 @@
 							</a>
 						</li>
 						<li class="nav-item ">
+							<a href="{{ route('categories.index') }}" class="nav-link{{ request()->routeIs('categories.*') ? ' active' : '' }}">
+								<i class="ph-note-blank"></i>
+								<span>{{ __('menu.categories') }}</span>
+							</a>
+						</li>
+						<li class="nav-item ">
 							<a href="{{ route('products.index') }}" class="nav-link{{ request()->routeIs('products.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
 								<span>{{ __('menu.products') }}</span>
@@ -138,21 +151,7 @@
 								<span>{{ __('menu.product_variants') }}</span>
 							</a>
 						</li>
-						<li class="nav-item ">
-							<a href="{{ route('categories.index') }}" class="nav-link{{ request()->routeIs('categories.*') ? ' active' : '' }}">
-								<i class="ph-note-blank"></i>
-								<span>{{ __('menu.categories') }}</span>
-							</a>
-						</li>
-                       
-						 
-
-						<li class="nav-item ">
-							<a href="{{ route('customertype.index') }}" class="nav-link{{ request()->routeIs('customertype.*') ? ' active' : '' }}">
-								<i class="ph-note-blank"></i>
-								<span>{{ __('menu.customer_type') }}</span>
-							</a>
-						</li>
+						
 						<li class="nav-item ">
 							<a href="{{ route('warehouses.index') }}" class="nav-link{{ request()->routeIs('warehouses.*') ? ' active' : '' }}">
 								<i class="ph-storefront"></i>
@@ -190,9 +189,9 @@
 							</a>
 						</li>
 						<li class="nav-item ">
-							<a href="{{ route('order-returns.index') }}" class="nav-link{{ request()->routeIs('order-returns.*') ? ' active' : '' }}">
-								<i class="ph-arrow-u-left-left"></i>
-								<span>{{ __('menu.order_returns') }}</span>
+							<a href="{{ route('customertype.index') }}" class="nav-link{{ request()->routeIs('customertype.*') ? ' active' : '' }}">
+								<i class="ph-note-blank"></i>
+								<span>{{ __('menu.customer_type') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">
@@ -200,7 +199,20 @@
 								<i class="ph-note-blank"></i>
 								<span>{{ __('menu.customers') }}</span>
 							</a>
+						</li>						
+						<li class="nav-item ">
+							<a href="{{ route('customers.addresses.list' ) }}" class="nav-link">
+								<i class="ph-note-blank"></i>
+								<span>{{ __('menu.customer_address') }}</span>
+							</a>
 						</li>
+						<li class="nav-item ">
+							<a href="{{ route('companies.index') }}" class="nav-link{{ request()->routeIs('companies.*') ? ' active' : '' }}">
+								<i class="ph-buildings"></i>
+								<span>{{ __('menu.companies') }}</span>
+							</a>
+						</li>						
+						
 						<li class="nav-item ">
 							<a href="{{ route('orders.index') }}" class="nav-link{{ request()->routeIs('orders.*') ? ' active' : '' }}">
 								<i class="ph-note-blank"></i>
@@ -208,16 +220,9 @@
 							</a>
 						</li>
 						<li class="nav-item ">
-							<a href="{{ route('customers.addresses.list' ) }}" class="nav-link">
-								<i class="ph-note-blank"></i>
-								<span>{{ __('menu.customer_address') }}</span>
-							</a>
-						</li>
-						
-						<li class="nav-item ">
-							<a href="{{ route('media.index' ) }}" class="nav-link{{ request()->routeIs('media.*') ? ' active' : '' }}">
-								<i class="ph-note-blank"></i>
-								<span>{{ __('menu.media') }}</span>
+							<a href="{{ route('order-returns.index') }}" class="nav-link{{ request()->routeIs('order-returns.*') ? ' active' : '' }}">
+								<i class="ph-arrow-fat-lines-right"></i>
+								<span>{{ __('menu.order_returns') }}</span>
 							</a>
 						</li>
 						<li class="nav-item ">

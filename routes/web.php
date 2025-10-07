@@ -28,7 +28,8 @@ use App\Http\Controllers\CustomerPopupController;
 use App\Http\Controllers\OrderAjaxController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController; 
-use App\Http\Controllers\Admin\PostCategoryController; 
+use App\Http\Controllers\Admin\PostCategoryController;
+use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\TransactionController;
 
@@ -110,6 +111,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('customers', CustomerController::class)->middleware('permission');
     // Xóa nhiều khách hàng
     Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulkDelete')->middleware('permission');
+
+    Route::resource('companies', \App\Http\Controllers\CompanyController::class)->middleware('permission');
+    Route::get('companies/export', [\App\Http\Controllers\CompanyController::class, 'export'])->name('companies.export')->middleware('permission');
+    Route::get('companies/import', [\App\Http\Controllers\CompanyController::class, 'importForm'])->name('companies.import.form')->middleware('permission');
+    Route::post('companies/import', [\App\Http\Controllers\CompanyController::class, 'import'])->name('companies.import')->middleware('permission');
     
     Route::resource('customertype', CustomerTypeController::class)->middleware('permission');
     Route::resource('warehouses', WarehouseController::class)->middleware('permission');
@@ -159,6 +165,9 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('post-categories', PostCategoryController::class);
         Route::resource('pages', PageController::class);
     });
+
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     
 });
 

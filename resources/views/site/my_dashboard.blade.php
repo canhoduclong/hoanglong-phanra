@@ -15,13 +15,18 @@
         <div class="card-body">
             <p><strong>Name:</strong> {{ $user->name }}</p>
             <p><strong>Email:</strong> {{ $user->email }}</p>
+            @if ($user->avatar)
+                <div class="mt-2">
+                    <img src="{{ asset($user->avatar) }}" alt="Avatar" class="img-thumbnail" width="150">
+                </div>
+            @endif
         </div>
     </div>
 
     <div class="card mt-4">
         <div class="card-header">Customer Profile</div>
         <div class="card-body">
-            <form action="{{ route('pages.update_profile') }}" method="POST">
+            <form action="{{ route('pages.update_profile') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
@@ -51,6 +56,7 @@
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
+
                 <div class="mb-3">
                     <label for="gender" class="form-label">Gender</label>
                     <select class="form-select" id="gender" name="gender">
@@ -60,6 +66,13 @@
                         <option value="other" {{ old('gender', $customer->gender ?? '') == 'other' ? 'selected' : '' }}>Other</option>
                     </select>
                     @error('gender')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="avatar" class="form-label">Avatar</label>
+                    <input type="file" class="form-control" id="avatar" name="avatar">
+                    @error('avatar')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>

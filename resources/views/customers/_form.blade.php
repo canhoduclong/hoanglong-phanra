@@ -17,6 +17,18 @@
         @error('email') <div class="text-danger small">{{ $message }}</div> @enderror
     </div>
 
+    <div class="col-md-6">
+        <label class="form-label">Website</label>
+        <input type="url" name="website" class="form-control" value="{{ old('website', $customer->website ?? '') }}">
+        @error('website') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">Địa chỉ</label>
+        <textarea name="address" class="form-control" rows="3">{{ old('address', $customer->addresses->where('is_default', 1)->first()->note ?? '') }}</textarea>
+        @error('address') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
     <div class="col-md-3">
         <label class="form-label">Giới tính</label>
         <select name="gender" class="form-select">

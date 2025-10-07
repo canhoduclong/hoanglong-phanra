@@ -3,21 +3,18 @@
 ])
 
 @section('content')
-
-
 <div class="content"  id="ProductList">
-<h2>Danh sách sản phẩm</h2> 
+<h2>{{ __('admin.product.list') }}</h2> 
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
-
  <form action="{{ route('products.index') }}" method="GET" class="mb-4">
         <div class="input-group">
-            <input type="text" name="name" class="form-control" placeholder="Tìm kiếm theo tên sản phẩm..." value="{{ request('name') }}">
+            <input type="text" name="name" class="form-control" placeholder="{{ __('admin.product.search_placeholder') }}" value="{{ request('name') }}">
             <select name="category_id" class="form-control">
-                <option value="">Tất cả danh mục</option>
+                <option value="">{{ __('admin.product.category') }}</option>
                 @foreach($categories as $category)
                     <option value="{{ $category->id }}" @if(request('category_id') == $category->id) selected @endif>
                         {{ $category->name }}
@@ -25,17 +22,13 @@
                 @endforeach
             </select>
             <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                <button class="btn btn-primary" type="submit">{{ __('admin.product.search') }}</button>
             </div>
         </div>
     </form>
-    
     @can('create', App\Models\Product::class)
         <a href="{{ route('products.create') }}" class="btn btn-success mb-3">{{ __('admin.product.create') }}</a>
-    @endcan 
-
-
-
+    @endcan
     <div class="card"> 
         <div class="card-header">
             <h5 class="mb-0">{{ __('admin.product.list') }}</h5>
@@ -46,8 +39,7 @@
                 <div class="input-group">
                     <input type="text" list-control="search-input" class="form-control" placeholder="{{ __('admin.product.name') }}"> 
                     <a href="#" list-control="search-button" class="btn btn-secondary" >
-                        <span class="material-symbols-rounded" style="line-height: 1 !important;">{{ __('admin.product
-                            .search') }}</span> 
+                        <span class="material-symbols-rounded" style="line-height: 1 !important;">{{ __('admin.product.search') }}</span> 
                     </a>
                 </div>
             </div>
@@ -107,7 +99,7 @@
                 
                 <th class="text-center" >
                     <div class="padding-cell">
-                        {{ __('admin.actions') }} <i class="ph-arrow-circle-dowsn"></i>
+                        {{ __('admin.product.actions') }} <i class="ph-arrow-circle-dowsn"></i>
                     </div>
                 </th>
             </tr>
@@ -115,7 +107,7 @@
         <tbody> 
             @foreach($products as $key => $product)  
             <tr id="product-row-{{ $product->id }}">
-                <td width="1%">
+                <td width="15%">
                    
                     @if($product->avatar && $product->avatar->media)
                         <img src="{{ asset('storage/' . $product->avatar->media->file_path) }}" width="80" id="product-image-{{ $product->id }}">
@@ -128,22 +120,22 @@
                 <td>{{ $product->category->name ??'' }}</td>
                 <td id="product-stock-{{ $product->id }}">{{ $product->stock ?? '' }}</td>
                 <td>
-
-                    @if(auth()->user()->hasPermission('edit'))
-                        <a href="{{ route('products.edit', ['product' => $product->id, 'page' =>  request()->page, 'perPage' => $perPage] ) }}" class="btn btn-warning btn-sm me-1">
-                             <i class="ph ph-pencil-line"></i>
-                        </a>
-                    @endif
- 
-                    @can('update', $product)
-                        <button type="button" class="btn btn-info btn-sm me-1 quick-edit-btn" 
-                                data-id="{{ $product->id }}" 
-                                data-url="{{ route('products.getQuickEditForm', $product->id) }}">
-                            Sửa nhanh
-                        </button>
-                    @endcan
-
                     <div class="d-flex justify-content-end list-actions"> 
+                        
+                        @if(auth()->user()->hasPermission('edit'))
+                            <a href="{{ route('products.edit', ['product' => $product->id, 'page' =>  request()->page, 'perPage' => $perPage] ) }}" class="btn btn-warning btn-sm me-1">
+                                <i class="ph ph-pencil-line"></i>
+                            </a>
+                        @endif
+    
+                        @can('update', $product)
+                            <button type="button" class="btn btn-info btn-sm me-1 quick-edit-btn" 
+                                    data-id="{{ $product->id }}" 
+                                    data-url="{{ route('products.getQuickEditForm', $product->id) }}">
+                                Sửa nhanh
+                            </button>
+                        @endcan
+                    
                          @can('update', $product)
                             <a href="{{ route('products.edit', ['product' => $product->id, 'page' =>  request()->page, 'perPage' => $perPage ]) }}" class="btn btn-primary btn-sm">Sửa</a>
                         @endcan

@@ -103,27 +103,14 @@
                     <td>{{ optional($customer->assignedTo)->name ?? '-' }}</td>
                      
                     <td>
-                        @php
-                            $default = $customer->addresses->firstWhere('is_default', 1);
-                        @endphp
-                        @if($default)
-                            @if($default->unit_number) 
-                                {{-- Có mã căn hộ: hiện đầy đủ --}}
-                                <div>Mã căn: <strong>{{ $default->unit_number ?? '—' }}</strong></div>
-                                <small>
-                                    Tầng: {{ $default->floor ?? '—' }},  
-                                    Block: {{ $default->block ?? '—' }}, 
-                                    Khu: {{ $default->zone ?? '—' }} <br>
-                                    Dự án : {{ $default->project_name ?? '' }}
-                                </small>
+                         @if($customer->addresses->isNotEmpty()) 
+                            @php
+                                $default = $customer->addresses->firstWhere('is_default', 1);
+                            @endphp
+                            @if($default)
+                                {{ $default->note }}
                             @else
-                                {{-- Nhà riêng --}}
-                                <div>Số nhà: <strong>{{ $default->house_number ?? '—' }}</strong></div>
-                                <small>
-                                    {{ $default->street ?? '' }}{{ $default->ward ? ', ' . $default->ward : '' }}
-                                    {{ $default->district ? ', ' . $default->district : '' }}
-                                    {{ $default->city ? ', ' . $default->city : '' }}
-                                </small>
+                                <span class="text-muted">—</span>
                             @endif
                         @else
                             <span class="text-muted">—</span>

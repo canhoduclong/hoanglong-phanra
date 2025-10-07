@@ -134,6 +134,13 @@ $(document).ready(function() {
                         // Reload the current page
                         var currentPageUrl = $('.pagination .active .page-link').attr('href') || "{{ route('product-variants.index') }}";
                         load_variants(currentPageUrl);
+                    },
+                    error: function(xhr, status, error) {
+                        var errorMessage = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        showNotification(errorMessage, 'danger');
                     }
                 });
             }

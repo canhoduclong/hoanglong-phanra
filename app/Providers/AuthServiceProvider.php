@@ -29,6 +29,9 @@ use App\Policies\OrderPolicy;
 use App\Models\ProductVariant;
 use App\Policies\ProductVariantPolicy;
 
+use App\Models\Company;
+use App\Policies\CompanyPolicy;
+
 
 
 class AuthServiceProvider extends ServiceProvider
@@ -47,6 +50,7 @@ class AuthServiceProvider extends ServiceProvider
         Role::class => RolePolicy::class,
         Order::class => OrderPolicy::class,
         ProductVariant::class => ProductVariantPolicy::class,
+        Company::class => CompanyPolicy::class,
         
         //Permission::class => PermissionPolicy::class,
 

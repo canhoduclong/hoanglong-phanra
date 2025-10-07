@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request; 
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Storage; 
 
 class CategoryController extends Controller
 {
@@ -27,10 +28,18 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        Category::create($request->only('name', 'parent_id'));
+        $data = $request->only('name', 'parent_id');
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('categories', 'public');
+            $data['image'] = $path;
+        }
+
+        Category::create($data);
 
         return redirect()->route('categories.index')->with('success', 'Tạo danh mục thành công!');
     }
@@ -43,12 +52,23 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
-       $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $category->update($request->only('name', 'parent_id'));
+        $data = $request->only('name', 'parent_id');
+
+        if ($request->hasFile('image')) {
+            if ($category->image) {
+                Storage::disk('public')->delete($category->image);
+            }
+            $path = $request->file('image')->store('categories', 'public');
+            $data['image'] = $path;
+        }
+
+        $category->update($data);
 
         return redirect()->route('categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }

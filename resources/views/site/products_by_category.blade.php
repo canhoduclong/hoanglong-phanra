@@ -71,11 +71,14 @@
             <div class="row">
                 @foreach($variants as $variant)
                 @if($variant->slug)
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="card">
+                       
                         <a href="{{ route('pages.variant_detail', $variant->slug) }}">
-                            @if($variant->image)
-                                <img src="{{ asset('storage/' . $variant->image->file_path) }}" class="card-img-top" alt="{{ $variant->product->name }}">
+                             
+                            @if($variant->product->avatar && $variant->product->avatar->media)
+                            
+                                <img src="{{ asset('storage/' . $variant->product->avatar->media->file_path) }}" class="card-img-top" alt="{{ $variant->product->name }}">
                             @else
                                 <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="placeholder">
                             @endif

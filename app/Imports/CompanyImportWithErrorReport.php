@@ -1,8 +1,7 @@
 <?php
 namespace App\Imports;
 
-use App\Models\Customer;
-use App\Models\CustomerAddress;
+use App\Models\Company;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -10,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 
-class CustomerImportWithErrorReport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class CompanyImportWithErrorReport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
 {
     use SkipsFailures;
     public $imported = [];
@@ -24,35 +23,23 @@ class CustomerImportWithErrorReport implements ToModel, WithHeadingRow, WithVali
     public function model(array $row)
     {
         try {
-            // Ép kiểu phone về string
             $row['phone'] = isset($row['phone']) ? (string)$row['phone'] : null;
-            // Kiểm tra address rõ ràng
-            if (!isset($row['address']) || trim($row['address']) === '') {
-                throw new \Exception('Trường address (địa chỉ) là bắt buộc và không được để trống.');
-            }
-            $customer = new Customer([
+            $company = new Company([
                 'name' => $row['name'] ?? null,
+                'mst' => $row['mst'] ?? null,
                 'phone' => $row['phone'] ?? null,
                 'email' => $row['email'] ?? null,
-                'website' => $row['website'] ?? null,
-                'gender' => $row['gender'] ?? null,
-                'dob' => $row['dob'] ?? null,
-                'customer_type_id' => $row['customer_type_id'] ?? null,
+                'address' => $row['address'] ?? null,
                 'note' => $row['note'] ?? null,
                 'assigned_to' => $this->userId,
             ]);
-            $customer->save();
-            CustomerAddress::create([
-                'customer_id' => $customer->id,
-                'note' => $row['address'],
-                'is_default' => 1,
-            ]);
+            $company->save();
             $this->imported[] = [
                 'row' => $row,
                 'status' => 'success',
-                'customer_id' => $customer->id,
+                'company_id' => $company->id,
             ];
-            return $customer;
+            return $company;
         } catch (\Exception $e) {
             $this->imported[] = [
                 'row' => $row,
@@ -67,10 +54,10 @@ class CustomerImportWithErrorReport implements ToModel, WithHeadingRow, WithVali
     {
         return [
             '*.name' => 'required|string|max:255',
-            '*.phone' => 'required|string|max:30',
-            '*.address' => 'required|string',
-            '*.email' => 'nullable|email|unique:customers,email',
-            '*.website' => 'nullable|url',
+            '*.mst' => 'nullable|string|max:255',
+            '*.phone' => 'nullable|string|max:30',
+            '*.email' => 'nullable|email|unique:companies,email',
+            '*.address' => 'nullable|string|max:1000',
         ];
     }
     public function getImported()

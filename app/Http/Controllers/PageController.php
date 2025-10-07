@@ -6,8 +6,10 @@ use App\Models\Contact;
 use App\Models\Setting;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -112,11 +114,11 @@ class PageController extends Controller
             ->with('success', 'Page deleted successfully.');
     }
 
-    public function productsByCategory(Request $request, \App\Models\Category $category = null)
+    public function productsByCategory(Request $request, Category $category = null)
     {
         $settings = Setting::all()->keyBy('key');
-        $categories = \App\Models\Category::all();
-        $query = \App\Models\ProductVariant::query()->where('stock', '>', 0);
+        $categories = Category::all();
+        $query = ProductVariant::query()->where('stock', '>', 0);
 
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
@@ -133,11 +135,11 @@ class PageController extends Controller
         return view('site.products_by_category', compact('variants', 'settings', 'categories', 'category'));
     }
 
-    public function productList(Request $request, \App\Models\Category $category = null)
+    public function productList(Request $request, Category $category = null)
     {
         $settings = Setting::all()->keyBy('key');
-        $categories = \App\Models\Category::all();
-        $query = \App\Models\Product::query();
+        $categories = Category::all();
+        $query = Product::query();
 
         if ($category) {
             $query->where('category_id', $category->id);
@@ -148,7 +150,7 @@ class PageController extends Controller
         return view('site.product_list', compact('products', 'settings', 'categories', 'category'));
     }
 
-    public function productDetail(\App\Models\Product $product)
+    public function productDetail(Product $product)
     {
         $settings = Setting::all()->keyBy('key');
 
@@ -174,7 +176,7 @@ class PageController extends Controller
         $settings = Setting::all()->keyBy('key');
         $user = auth()->user();
         
-        $customer = \App\Models\Customer::updateOrCreate(
+        $customer = Customer::updateOrCreate(
             ['email' => $user->email],
             ['user_id' => $user->id, 'name' => $user->name]
         );
@@ -185,20 +187,32 @@ class PageController extends Controller
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
-        //$user->load('customer'); // Eager load or refresh the customer relationship
         $customer = $user->customer; 
+
         $request->validate([
             'name' => 'required|string|max:255', 
             'phone' => 'nullable|string|max:20',
             'dob' => 'nullable|date',
             'gender' => 'nullable|in:male,female,other',
             'note' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'email', 'phone', 'dob', 'gender', 'note']);
+        $customerData = $request->only(['name', 'email', 'phone', 'dob', 'gender', 'note']);
 
         if ($customer) {
-            $customer->update($data);
+            $customer->update($customerData);
+        }
+
+        $userData = [];
+        if ($request->hasFile('avatar')) {
+            $avatarName = time().'.'.$request->avatar->getClientOriginalExtension();
+            $request->avatar->move(public_path('avatars'), $avatarName);
+            $userData['avatar'] = 'avatars/' . $avatarName;
+        }
+
+        if(count($userData) > 0){
+            $user->update($userData);
         }
 
         return redirect()->route('pages.my_dashboard')->with('success', 'Profile updated successfully.');

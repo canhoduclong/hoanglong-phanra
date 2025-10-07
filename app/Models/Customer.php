@@ -17,6 +17,7 @@ class Customer extends Model
         'name',
         'phone',
         'email',
+        'website',
         'gender',
         'dob',
         'customer_type_id',

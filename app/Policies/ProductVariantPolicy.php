@@ -22,4 +22,9 @@ class ProductVariantPolicy
         // Quyền mặc định: cho phép admin hoặc user có quyền 'product-variant.duplicate'
         return $user->hasRole('admin') || $user->hasPermission('product-variant.duplicate');
     }
+
+    public function bulkDelete(User $user)
+    {
+        return $user->hasPermission('product-variants.bulk-delete');
+    }
 }

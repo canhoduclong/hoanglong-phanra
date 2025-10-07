@@ -23,9 +23,9 @@ class CustomerController extends Controller
     // Hiển thị form import và kết quả
     public function importForm(Request $request)
     {
-        $errors = session('import_errors', []);
+        $import_failures = session('import_errors', []);
         $success = session('import_success', null);
-        return view('customers.import', compact('errors', 'success'));
+        return view('customers.import', compact('import_failures', 'success'));
     }
 
     // Xử lý import excel
@@ -52,7 +52,7 @@ class CustomerController extends Controller
                         'values' => $values,
                     ];
                 }
-                return redirect()->route('customers.import.form')->with(['import_errors' => $errors]);
+                return redirect()->route('customers.import.form')->with(['import_failures' => $errors]);
             }
             return redirect()->route('customers.import.form')->with(['import_success' => 'Import khách hàng thành công!']);
         } catch (\Exception $e) {
@@ -117,10 +117,12 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:30|unique:customers,phone',
             'email' => 'nullable|email|unique:customers,email',
+            'website' => 'nullable|url|max:255',
             'gender' => 'nullable|in:male,female,other',
             'dob' => 'nullable|date',
             'customer_type_id' => 'nullable|exists:customer_types,id',
             'note' => 'nullable|string|max:2000',
+            'address' => 'nullable|string|max:1000',
             'delivery_time' => 'nullable|string|max:255',
             'foam_box_required' => 'nullable|boolean',
             'foam_box_price' => 'nullable|integer',
@@ -134,7 +136,15 @@ class CustomerController extends Controller
             'truck_station_phone' => 'nullable|string|max:30',
             'truck_fee' => 'nullable|integer',
         ]);
-        Customer::create($data);
+        $customer = Customer::create($data);
+
+        if ($request->filled('address')) {
+            $customer->addresses()->create([
+                'note' => $request->address,
+                'is_default' => 1,
+            ]);
+        }
+
         return redirect()->route('customers.index')->with('success', 'Thêm khách hàng thành công.');
     }
 
@@ -152,10 +162,12 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:30|unique:customers,phone,' . $customer->id,
             'email' => 'nullable|email|unique:customers,email,' . $customer->id,
+            'website' => 'nullable|url|max:255',
             'gender' => 'nullable|in:male,female,other',
             'dob' => 'nullable|date',
             'customer_type_id' => 'nullable|exists:customer_types,id',
             'note' => 'nullable|string|max:2000',
+            'address' => 'nullable|string|max:1000',
             'delivery_time' => 'nullable|string|max:255',
             'foam_box_required' => 'nullable|boolean',
             'foam_box_price' => 'nullable|integer',
@@ -170,6 +182,14 @@ class CustomerController extends Controller
             'truck_fee' => 'nullable|integer',
         ]);
         $customer->update($data);
+
+        if ($request->filled('address')) {
+            $customer->addresses()->updateOrCreate(
+                ['is_default' => 1],
+                ['note' => $request->address]
+            );
+        }
+
         return redirect()->route('customers.index')->with('success', 'Cập nhật khách hàng thành công.');
     }
 
@@ -178,5 +198,19 @@ class CustomerController extends Controller
     {
         $customer->delete();
         return redirect()->route('customers.index')->with('success', 'Xóa khách hàng thành công.');
+    }
+
+    // Bulk Delete
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|string',
+        ]);
+
+        $ids = explode(',', $request->input('ids'));
+
+        Customer::whereIn('id', $ids)->delete();
+
+        return redirect()->route('customers.index')->with('success', 'Đã xóa các khách hàng đã chọn.');
     }
 }

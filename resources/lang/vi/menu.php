@@ -3,7 +3,7 @@
 return [
     'dashboard' => 'Bảng điều khiển',
     'content' => 'Nội dung',
-    'blog' => 'Blog',
+    'blog' => 'Tin tức',
     'categories' => 'Danh mục',
     'pages' => 'Trang',
     'permissions' => 'Quyền - Tính năng',
@@ -26,5 +26,6 @@ return [
     'media' => 'Media',
     'transactions' => 'Giao dịch',
     'settings' => 'Cài đặt',
+    'companies' => 'Công ty',    
     'logout' => 'Đăng xuất',
 ];
