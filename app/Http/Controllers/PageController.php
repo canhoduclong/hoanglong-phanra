@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Customer;
 
 class PageController extends Controller
 {
