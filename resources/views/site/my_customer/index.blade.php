@@ -70,6 +70,8 @@
                                 <td>{{ $customer->email }}</td>
                                 <td>{{ $customer->phone }}</td>
                                 <td>
+                                    <a href="{{ route('my_customer.show', $customer) }}" class="btn btn-primary btn-sm">Xem</a>
+                                    <a href="{{ route('my_customer.order.create', $customer) }}" class="btn btn-success btn-sm">Lên đơn</a>
                                     <a href="{{ route('my_customer.edit', $customer) }}" class="btn btn-warning btn-sm">Sửa</a>
                                     <form action="{{ route('my_customer.destroy', $customer) }}" method="POST" class="d-inline">
                                         @csrf

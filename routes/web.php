@@ -181,6 +181,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-customer/bulk-delete', [PageController::class, 'myCustomerBulkDelete'])->name('my_customer.bulk_delete');
     Route::get('/my-customer/import', [PageController::class, 'myCustomerImportForm'])->name('my_customer.import_form');
     Route::post('/my-customer/import', [PageController::class, 'myCustomerImport'])->name('my_customer.import');
+    Route::get('/my-customer/{customer}', [PageController::class, 'myCustomerShow'])->name('my_customer.show');
+    Route::get('/my-customer/{customer}/order', [PageController::class, 'myCustomerOrderCreate'])->name('my_customer.order.create');
+    Route::post('/my-customer/{customer}/order', [PageController::class, 'myCustomerOrderStore'])->name('my_customer.order.store');
 });
 
 
@@ -215,6 +218,7 @@ Route::get('/variant/{variant:slug}', [PageController::class, 'variantDetail'])-
 Route::get('/my-dashboard', [PageController::class, 'myDashboard'])->name('pages.my_dashboard');
 Route::post('/my-dashboard', [PageController::class, 'updateProfile'])->name('pages.update_profile');
 Route::get('/my-orders', [PageController::class, 'myOrders'])->name('pages.my_orders');
+Route::get('/my-orders/{order}', [PageController::class, 'myOrderDetail'])->name('site.orders.show');
 
 Route::get('/page/{slug}', [PageController::class, 'show'])->name('pages.show');
 

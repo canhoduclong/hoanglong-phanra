@@ -7,9 +7,50 @@ use App\Models\OrderApproval;
 use App\Workflows\OrderWorkflow;
 use App\Enums\OrderStatus;
 use App\Models\User;
+use App\Models\ProductVariant;
 
 class OrderService
 {
+    public function createOrder(array $orderData, array $variants): Order
+    {
+        $variants = array_filter($variants, function ($variant) {
+            return isset($variant['quantity']) && $variant['quantity'] > 0;
+        });
+
+        if (empty($variants)) {
+            throw new \Exception("No products selected.");
+        }
+
+        $totalAmount = 0;
+        $orderItems = [];
+
+        foreach ($variants as $variantData) {
+            $variant = ProductVariant::with('latestPriceRule', 'product')->find($variantData['id']);
+            if ($variant) {
+                $price = $variant->latestPriceRule->price ?? $variant->price;
+                $totalAmount += $price * $variantData['quantity'];
+                $orderItems[] = [
+                    'product_id' => $variant->product->id,
+                    'product_variant_id' => $variant->id,
+                    'quantity' => $variantData['quantity'],
+                    'price' => $price,
+                    'total' => $price * $variantData['quantity'],
+                ];
+            }
+        }
+
+        $orderData['total_amount'] = $totalAmount ?? 0;
+        $order = Order::create($orderData);
+
+        if ($order) {
+            foreach ($orderItems as $item) {
+                $order->items()->create($item);
+            }
+        }
+
+        return $order;
+    }
+
     public function updateStatus(Order $order, string $newStatus, User $user): Order
     {
         $workflow = new OrderWorkflow();

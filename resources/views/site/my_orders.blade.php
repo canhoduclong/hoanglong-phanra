@@ -10,6 +10,7 @@
                 <thead>
                     <tr>
                         <th>Order Code</th>
+                        <th>Customer</th>
                         <th>Total</th>
                         <th>Status</th>
                         <th>Date</th>
@@ -20,11 +21,12 @@
                     @forelse($orders as $order)
                         <tr>
                             <td>{{ $order->code }}</td>
+                            <td>{{ $order->customer->name ?? '' }}</td>
                             <td>{{ number_format($order->total, 2) }}</td>
                             <td>{{ $order->status }}</td>
                             <td>{{ $order->created_at->format('d-m-Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('orders.show', $order) }}" class="btn btn-info btn-sm">View</a>
+                                <a href="{{ route('site.orders.show', $order) }}" class="btn btn-info btn-sm">View</a>
                             </td>
                         </tr>
                     @empty

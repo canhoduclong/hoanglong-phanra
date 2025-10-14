@@ -11,7 +11,12 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Customer;
+use App\Services\OrderService;
+use App\Models\Order;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Enums\DeliveryStatus;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 
 class PageController extends Controller
 {
@@ -233,7 +238,7 @@ class PageController extends Controller
     {
         $settings = Setting::all()->keyBy('key');
         $user = auth()->user();
-        $orders = \App\Models\Order::where('user_id', $user->id)->latest()->paginate(10);
+        $orders = \App\Models\Order::with('customer')->where('user_id', $user->id)->latest()->paginate(10);
 
         return view('site.my_orders', compact('settings', 'user', 'orders'));
     }
@@ -338,5 +343,46 @@ class PageController extends Controller
             ->with('importedCount', $importedCount)
             ->with('failedCount', $failedCount)
             ->with('failedRows', $failedRows);
+    }
+
+    public function myCustomerShow(Customer $customer)
+    {
+        return view('site.my_customer.show', compact('customer'));
+    }
+
+    public function myCustomerOrderCreate(Customer $customer)
+    {        
+        $products = Product::with('variants.latestPriceRule')->get();
+        return view('site.my_customer.order_create', compact('customer', 'products'));
+    }
+
+    public function myCustomerOrderStore(Request $request, Customer $customer, OrderService $orderService)
+    {
+        $request->validate([
+            'variants' => 'required|array',
+            'variants.*.id' => 'required|exists:product_variants,id',
+            'variants.*.quantity' => 'nullable|integer|min:0',
+        ]);
+
+        $order = $orderService->createOrder([
+            'customer_id' => $customer->id,
+            'user_id' => auth()->id(),
+            'status' => OrderStatus::Pending->value,
+            'payment_status' => PaymentStatus::Unpaid->value,
+            'delivery_status' => DeliveryStatus::NotShipped->value,
+            'total_amount' => 0, // Will be calculated by the service
+        ], $request->variants);
+
+        return redirect()->route('orders.show', $order)->with('success', 'Order created successfully.');
+    }
+
+    public function myOrderDetail(\App\Models\Order $order)
+    {
+        // Add authorization check if needed
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $order->load('items.variant.product', 'customer');
+        return view('site.orders.show', compact('order'));
     }
 }
