@@ -11,6 +11,7 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Customer;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PageController extends Controller
 {
@@ -235,5 +236,107 @@ class PageController extends Controller
         $orders = \App\Models\Order::where('user_id', $user->id)->latest()->paginate(10);
 
         return view('site.my_orders', compact('settings', 'user', 'orders'));
+    }
+
+    public function myCustomer(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search');
+
+        $customers = Customer::query()
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%")
+                             ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->paginate($perPage);
+
+        return view('site.my_customer.index', compact('customers', 'search'));
+    }
+
+    public function myCustomerCreate()
+    {
+        return view('site.my_customer.create');
+    }
+
+    public function myCustomerEdit(Customer $customer)
+    {
+        return view('site.my_customer.edit', compact('customer'));
+    }
+
+    public function myCustomerImportForm()
+    {
+        return view('site.my_customer.import');
+    }
+
+    public function myCustomerStore(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        Customer::create($request->all());
+
+        return back()->with('success', 'Customer created successfully.');
+    }
+
+    public function myCustomerUpdate(Request $request, Customer $customer)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email,' . $customer->id,
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $customer->update($request->all());
+
+        return back()->with('success', 'Customer updated successfully.');
+    }
+
+    public function myCustomerDestroy(Customer $customer)
+    {
+        $customer->delete();
+        return back()->with('success', 'Customer deleted successfully.');
+    }
+
+    public function myCustomerBulkDelete(Request $request)
+    {
+        $ids = explode(',', $request->input('_ids'));
+
+        if (empty($ids)) {
+            return back()->with('error', 'Không có khách hàng nào được chọn.');
+        }
+
+        Customer::whereIn('id', $ids)->delete();
+
+        return back()->with('success', 'Đã xóa thành công các khách hàng đã chọn.');
+    }
+
+    public function myCustomerImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv'
+        ]);
+
+        $file = $request->file('file');
+
+        $import = new \App\Imports\CustomerImport;
+        Excel::import($import, $file);
+
+        $importedCount = $import->getImportedCount();
+        $failedCount = $import->getFailedCount();
+        $failedRows = $import->getFailedRows();
+
+        $message = "Import completed. {$importedCount} rows imported successfully.";
+        if ($failedCount > 0) {
+            $message .= " {$failedCount} rows failed to import.";
+        }
+
+        return back()
+            ->with('success', $message)
+            ->with('importedCount', $importedCount)
+            ->with('failedCount', $failedCount)
+            ->with('failedRows', $failedRows);
     }
 }

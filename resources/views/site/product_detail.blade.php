@@ -5,8 +5,12 @@
     <div class="row">
         <!-- Image Gallery -->
         <div class="col-md-6">
-            <div id="main-image-container">
-                <img src="" class="img-fluid" alt="Product Image">
+            <div id="main-image-container"> 
+                @if($product->avatar && $product->avatar->media)
+                    <img src="{{ asset('storage/' . $product->avatar->media->file_path) }}" alt="{{ $product->name }}" class="img-fluid">
+                @else
+                    <img src="https://via.placeholder.com/80" alt="placeholder"  class="img-fluid">
+                @endif
             </div>
             <div id="thumbnail-gallery" class="mt-2">
                 <!-- Thumbnails will be injected by JS -->
@@ -83,11 +87,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const productData = @json($product);
-
         const productManager = {
             // DOM Elements
             elements: {
                 mainImage: document.querySelector('#main-image-container img'),
+                avatarImage: productData.avatar ? `/storage/${productData.avatar.media.file_path}` : null,
                 thumbnailGallery: document.querySelector('#thumbnail-gallery'),
                 variantSelectors: document.querySelectorAll('.variant-selector'),
                 resetBtn: document.getElementById('reset-selection-btn'),
@@ -105,10 +109,11 @@
                 selectedVariant: null,
                 selectedAttributes: {},
                 initialImages: productData.gallery.map(g => g.media),
+                initialAvatarImage: productData.avatar ? productData.avatar.media : null,
             },
 
             init() {
-                this.renderGallery(this.state.initialImages);
+                this.renderGallery(this.state.initialAvatarImage,this.state.initialImages);
                 this.addEventListeners();
             },
 
@@ -121,10 +126,14 @@
                 this.elements.thumbnailGallery.addEventListener('click', this.handleThumbnailClick.bind(this));
             },
 
-            renderGallery(images) {
+            renderGallery(avatar,images) {
                 this.elements.thumbnailGallery.innerHTML = '';
                 if (!images || images.length === 0) {
-                    this.elements.mainImage.src = 'https://via.placeholder.com/500x500';
+                    if (avatar) {
+                        this.elements.mainImage.src = `/storage/${avatar.file_path}`;
+                    } else {
+                        this.elements.mainImage.src = 'https://via.placeholder.com/500x500';
+                    }
                     return;
                 }
 

@@ -1,55 +1,74 @@
 <?php
+
 namespace App\Imports;
 
 use App\Models\Customer;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Facades\Excel;
 
-class CustomerImport implements ToModel, WithHeadingRow, WithValidation
+class CustomerImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
-    protected $userId;
+    use Importable;
 
-    public function __construct()
-    {
-        $this->userId = auth()->id();
-    }
+    private $importedCount = 0;
+    private $failedCount = 0;
+    private $failedRows = [];
 
     public function model(array $row)
     {
-        // Địa chỉ sẽ lưu vào note hoặc xử lý riêng nếu có bảng addresses
-        $customer = new Customer([
-            'name' => $row['name'] ?? null,
-            'phone' => $row['phone'] ?? null,
-            'email' => $row['email'] ?? null,
-            'website' => $row['website'] ?? null,
-            'gender' => $row['gender'] ?? null,
-            'dob' => $row['dob'] ?? null,
-            'customer_type_id' => $row['customer_type_id'] ?? null,
-            'note' => $row['note'] ?? null,
-            'assigned_to' => $this->userId,
+        $this->importedCount++;
+
+        return new Customer([
+            'name'     => $row['name'],
+            'email'    => $row['email'],
+            'phone'    => $row['phone'],
         ]);
-        $customer->save();
-        // Nếu có cột address, tạo CustomerAddress mặc định
-        if (!empty($row['address'])) {
-            \App\Models\CustomerAddress::create([
-                'customer_id' => $customer->id,
-                'note' => $row['address'],
-                'is_default' => 1,
-            ]);
-        }
-        return $customer;
     }
 
     public function rules(): array
     {
         return [
             '*.name' => 'required|string|max:255',
-            '*.phone' => 'required|string|max:30',
-            '*.address' => 'required|string',
-            '*.email' => 'nullable|email|unique:customers,email',
-            '*.website' => 'nullable|url',
+            '*.email' => 'required|email|unique:customers,email',
+            '*.phone' => 'nullable|string|max:20',
         ];
+    }
+
+    public function onError(\Throwable $e)
+    {
+        // This method is called when a general error occurs during import.
+    }
+
+    public function onFailure(Failure ...$failures)
+    {
+        foreach ($failures as $failure) {
+            $this->failedCount++;
+            $this->failedRows[] = [
+                'row' => $failure->row(),
+                'error' => $failure->errors()[0],
+                'data' => $failure->values(),
+            ];
+        }
+    }
+
+    public function getImportedCount(): int
+    {
+        return $this->importedCount;
+    }
+
+    public function getFailedCount(): int
+    {
+        return $this->failedCount;
+    }
+
+    public function getFailedRows(): array
+    {
+        return $this->failedRows;
     }
 }

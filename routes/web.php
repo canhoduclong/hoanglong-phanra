@@ -30,8 +30,10 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController; 
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\ProfileController;
-
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\MyCustomerController;
+
+
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/variants', [HomeController::class, 'variants'])->name('site.variants');
@@ -168,7 +170,17 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
-    
+
+    // My Customer Page
+    Route::get('/my-customer', [PageController::class, 'myCustomer'])->name('pages.my_customer');
+    Route::get('/my-customer/create', [PageController::class, 'myCustomerCreate'])->name('my_customer.create');
+    Route::post('/my-customer', [PageController::class, 'myCustomerStore'])->name('my_customer.store');
+    Route::get('/my-customer/{customer}/edit', [PageController::class, 'myCustomerEdit'])->name('my_customer.edit');
+    Route::put('/my-customer/{customer}', [PageController::class, 'myCustomerUpdate'])->name('my_customer.update');
+    Route::delete('/my-customer/{customer}', [PageController::class, 'myCustomerDestroy'])->name('my_customer.destroy');
+    Route::post('/my-customer/bulk-delete', [PageController::class, 'myCustomerBulkDelete'])->name('my_customer.bulk_delete');
+    Route::get('/my-customer/import', [PageController::class, 'myCustomerImportForm'])->name('my_customer.import_form');
+    Route::post('/my-customer/import', [PageController::class, 'myCustomerImport'])->name('my_customer.import');
 });
 
 
@@ -207,6 +219,21 @@ Route::get('/my-orders', [PageController::class, 'myOrders'])->name('pages.my_or
 Route::get('/page/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 //Route::get('/{slug}', [PageController::class, 'show'])->name('page.show');
+
+// Posts
+Route::get('/tin-tuc', [PostController::class, 'list'])->name('posts.list');
+Route::get('/tin-tuc/chuyen-muc/{category:slug}', [PostController::class, 'category'])->name('posts.category');
+Route::get('/tin-tuc/{post:slug}', [PostController::class, 'show'])->name('posts.show');
+
+Route::get('/test-variant', function () {
+    try {
+        $variant = \App\Models\ProductVariant::factory()->create();
+        return response()->json($variant);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+Route::get('/{slug}', [PageController::class, 'show'])->name('page.show');
 
 // Posts
 Route::get('/tin-tuc', [PostController::class, 'list'])->name('posts.list');
