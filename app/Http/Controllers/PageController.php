@@ -248,7 +248,7 @@ class PageController extends Controller
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search');
 
-        $customers = Customer::query()
+        $customers = Customer::withCount('orders')
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', "%{$search}%")
                              ->orWhere('email', 'like', "%{$search}%");

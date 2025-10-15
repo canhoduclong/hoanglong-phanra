@@ -10,9 +10,6 @@ class Customer extends Model
 {
     use HasFactory;
 
-    public function transactions() { return $this->hasMany(Transaction::class); }
-    use HasFactory;
-
     protected $fillable = [
         'name',
         'phone',
@@ -22,25 +19,30 @@ class Customer extends Model
         'dob',
         'customer_type_id',
         'note',
-              'delivery_time',
-              'foam_box_required',
-              'foam_box_price',
-              'use_truck_station',
-              'truck_station_address',
-              'truck_receive_time',
-              'truck_return_time',
-              'truck_return_address',
-              'truck_invoice_image',
-              'truck_delivery_image',
-              'truck_station_phone',
-              'truck_fee',
+        'delivery_time',
+        'foam_box_required',
+        'foam_box_price',
+        'use_truck_station',
+        'truck_station_address',
+        'truck_receive_time',
+        'truck_return_time',
+        'truck_return_address',
+        'truck_invoice_image',
+        'truck_delivery_image',
+        'truck_station_phone',
+        'truck_fee',
         'assigned_to',
-         ];
+    ];
+
     protected $dates = ['dob'];
+
     protected $casts = [
         'dob' => 'date',
     ];
-    
+
+    public function transactions() {
+        return $this->hasMany(Transaction::class);
+    }
 
     /**
      * Quan hệ: Customer thuộc một loại khách hàng
@@ -70,5 +72,9 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
-    
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

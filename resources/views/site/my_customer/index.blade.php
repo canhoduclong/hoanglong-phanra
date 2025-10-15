@@ -59,6 +59,7 @@
                             <th>Tên</th>
                             <th>Email</th>
                             <th>Điện thoại</th>
+                            <th>Đơn hàng</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
@@ -69,6 +70,11 @@
                                 <td>{{ $customer->name }}</td>
                                 <td>{{ $customer->email }}</td>
                                 <td>{{ $customer->phone }}</td>
+                                <td>
+                                    @if($customer->orders_count > 0)
+                                        <a href="{{ route('my_customer.show', $customer) }}" class="btn btn-info btn-sm">Xem đơn hàng</a>
+                                    @endif
+                                </td>
                                 <td>
                                     <a href="{{ route('my_customer.show', $customer) }}" class="btn btn-primary btn-sm">Xem</a>
                                     <a href="{{ route('my_customer.order.create', $customer) }}" class="btn btn-success btn-sm">Lên đơn</a>
