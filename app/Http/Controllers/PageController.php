@@ -136,9 +136,7 @@ class PageController extends Controller
                 $q->where('category_id', $category->id);
             });
         }
-
         $variants = $query->with('product', 'latestPriceRule')->paginate(10);
-
         return view('site.products_by_category', compact('variants', 'settings', 'categories', 'category'));
     }
 

@@ -13,7 +13,7 @@
             <p><strong>Status:</strong> {{ $order->status }}</p>
             <p><strong>Payment Status:</strong> {{ $order->payment_status }}</p>
             <p><strong>Delivery Status:</strong> {{ $order->delivery_status }}</p>
-            <p><strong>Total Amount:</strong> {{ number_format($order->total_amount) }}</p>
+            <p><strong>Total Amount:</strong> {{ number_format($order->total) }}</p>
 
             <h5 class="mt-4">Order Items</h5>
             <table class="table table-striped">

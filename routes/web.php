@@ -47,7 +47,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     // AJAX lấy tổng tiền đơn hàng
-    Route::get('orders/ajax/total', [App\Http\Controllers\OrderAjaxController::class, 'total'])->name('orders.ajax.total');
+    Route::get('orders/ajax/total', [OrderAjaxController::class, 'total'])->name('orders.ajax.total');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Quản lý sản phẩm
@@ -84,12 +84,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('orders/{order}/list-variant', [OrderController::class, 'listVariant'])->name('orders.list-variant');
     Route::get('orders/{order}/variants-list', [OrderController::class, 'variantsList'])->name('orders.variants-list');
     Route::post('orders/{order}/toggle-status', [OrderController::class, 'toggleStatus']);
-    Route::resource('orders', OrderController::class)->middleware('permission');
-
+    Route::get('/orders/create-new', [OrderController::class, 'createNewOrderForm'])->name('orders.create_new');
+    Route::post('/orders/store-new', [OrderController::class, 'storeNewOrder'])->name('orders.store_new');
     Route::post('orders/{order}/add-variant', [OrderController::class, 'addVariant']);
     Route::post('orders/{order}/remove-variant', [OrderController::class, 'removeVariant']);
     Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
-
+    Route::resource('orders', OrderController::class)->middleware('permission');
 
     // Quản lý danh mục
     Route::resource('categories', CategoryController::class)->middleware('permission');
@@ -98,10 +98,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class)->middleware('permission'); 
 
     // Quản lý quyền
-    //Route::resource('permissions', PermissionController::class);//->middleware('permission');
+    // Route::resource('permissions', PermissionController::class);//->middleware('permission');
 
-    Route::resource('permissions', PermissionController::class)->middleware('permission'); 
-
+    Route::resource('permissions', PermissionController::class)->middleware('permission');
 
     // Quản lý người dùng
     Route::resource('users', UserController::class)->middleware('permission');
@@ -111,9 +110,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('customers/import', [CustomerController::class, 'importForm'])->name('customers.import.form')->middleware('permission');
     Route::post('customers/import', [CustomerController::class, 'import'])->name('customers.import')->middleware('permission');
     Route::resource('customers', CustomerController::class)->middleware('permission');
+
     // Xóa nhiều khách hàng
     Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulkDelete')->middleware('permission');
-
     Route::resource('companies', \App\Http\Controllers\CompanyController::class)->middleware('permission');
     Route::get('companies/export', [\App\Http\Controllers\CompanyController::class, 'export'])->name('companies.export')->middleware('permission');
     Route::get('companies/import', [\App\Http\Controllers\CompanyController::class, 'importForm'])->name('companies.import.form')->middleware('permission');
@@ -127,8 +126,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('inventory-adjustments', InventoryAdjustmentController::class)->middleware('permission');
     Route::resource('inventory-reservations', InventoryReservationController::class)->middleware('permission');
     Route::resource('order-returns', OrderReturnController::class)->middleware('permission');
-
-
+    
     // Route list toàn bộ địa chỉ (không cần customerId)
     Route::get('customers/list/addresses', [CustomerAddressController::class, 'list'])
     ->name('customers.addresses.list')->middleware('permission');
@@ -215,8 +213,8 @@ Route::get('/san-pham/{category:slug?}', [PageController::class, 'productsByCate
 Route::get('/danh-sach-san-pham/{category:slug?}', [PageController::class, 'productList'])->name('pages.product_list');
 Route::get('/product/{product:slug}', [PageController::class, 'productDetail'])->name('pages.product_detail');
 Route::get('/variant/{variant:slug}', [PageController::class, 'variantDetail'])->name('pages.variant_detail');
-Route::get('/my-dashboard', [PageController::class, 'myDashboard'])->name('pages.my_dashboard');
-Route::post('/my-dashboard', [PageController::class, 'updateProfile'])->name('pages.update_profile');
+Route::get('/my-profile', [PageController::class, 'myDashboard'])->name('pages.my_dashboard');
+Route::post('/my-profile', [PageController::class, 'updateProfile'])->name('pages.update_profile');
 Route::get('/my-orders', [PageController::class, 'myOrders'])->name('pages.my_orders');
 Route::get('/my-orders/{order}', [PageController::class, 'myOrderDetail'])->name('site.orders.show');
 
@@ -237,18 +235,7 @@ Route::get('/test-variant', function () {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show');
 
-// Posts
-Route::get('/tin-tuc', [PostController::class, 'list'])->name('posts.list');
-Route::get('/tin-tuc/chuyen-muc/{category:slug}', [PostController::class, 'category'])->name('posts.category');
-Route::get('/tin-tuc/{post:slug}', [PostController::class, 'show'])->name('posts.show');
 
-Route::get('/test-variant', function () {
-    try {
-        $variant = \App\Models\ProductVariant::factory()->create();
-        return response()->json($variant);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-});

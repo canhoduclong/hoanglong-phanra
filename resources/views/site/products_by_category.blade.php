@@ -89,7 +89,8 @@
                             <p class="card-text">Price: {{ number_format($variant->latestPriceRule?->price ?? 0) }}</p>
                             <p class="card-text">Stock: {{ $variant->stock }}</p>
                             <a href="{{ route('pages.variant_detail', $variant->slug) }}" class="btn btn-info btn-sm">View</a>
-                            <button class="btn btn-success btn-sm order-btn" data-price="{{ $variant->latestPriceRule?->price ?? 0 }}">Order</button>
+
+                            <a href="{{ route('orders.create_new', ['variant_id' => $variant->id]) }}" class="btn btn-success btn-sm order-btn ">Lên đơn</a> 
                             @can('update', $variant)
                                 <a href="{{ route('product-variants.edit', $variant->id) }}" class="btn btn-primary btn-sm">Edit</a>
                             @endcan
@@ -130,23 +131,4 @@
 </footer>
 @endsection
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let totalOrderValue = 0;
-        const totalOrderValueEl = document.getElementById('total-order-value');
-
-        document.querySelectorAll('.order-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const price = parseFloat(this.dataset.price);
-                totalOrderValue += price;
-                if(totalOrderValueEl) {
-                    totalOrderValueEl.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalOrderValue);
-                }
-                // Here you can add the logic to add the variant to the cart
-                alert('Ordered! Total value: ' + totalOrderValue);
-            });
-        });
-    });
-</script>
-@endpush
+ 

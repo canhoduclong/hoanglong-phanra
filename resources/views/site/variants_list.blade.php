@@ -52,6 +52,7 @@
                                     @if($variant->slug)
                                     <a href="{{ route('pages.variant_detail', $variant->slug) }}" class="btn btn-info btn-sm">View</a>
                                     @endif
+                                    <a href="{{ route('orders.create_new', ['variant_id' => $variant->id]) }}" class="btn btn-primary btn-sm">Lên đơn</a>
                                 </td>
                             </tr>
                             @endforeach
