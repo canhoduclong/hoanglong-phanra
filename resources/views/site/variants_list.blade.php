@@ -3,11 +3,10 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-md-3">
-            <h4>Categories</h4>
+        <div class="col-md-3"> 
             <div class="list-group">
                 <a href="{{ route('site.variants') }}" class="list-group-item list-group-item-action {{ !isset($category) ? 'active' : '' }}">
-                    All Categories
+                    DANH MỤC HÀNG HÓA
                 </a>
                 @foreach($categories as $cat)
                     <a href="{{ route('site.variants', ['category' => $cat->slug]) }}" class="list-group-item list-group-item-action {{ (isset($category) && $category->id == $cat->id) ? 'active' : '' }}">
@@ -17,7 +16,7 @@
             </div>
         </div>
         <div class="col-md-9">
-            <h1>Product Variants</h1>
+            <h1>SẢN PHẨM</h1>
 
             <div class="card">
                 <div class="card-body">

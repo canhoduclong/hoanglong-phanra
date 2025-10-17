@@ -31,22 +31,82 @@ class OrderController extends Controller
         }
         $customers = Customer::paginate(10);
 
+        // IMPORTANT: Set the base path for the pagination links to our AJAX endpoint.
+        $customers->setPath(route('orders.ajax_customer_search'));
+
         return view('orders.create_new', compact('variant', 'customers'));
+    }
+
+    public function ajaxCustomerSearch(Request $request)
+    {
+        $query = Customer::query();
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhere('phone', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        $customers = $query->paginate(10);
+
+        return response()->json([
+            'html' => view('orders._customer_list', compact('customers'))->render()
+        ]);
+    }
+
+    public function ajaxVariantSearch(Request $request)
+    {
+        $perPage = $request->input('per_page', 5);
+        // Safeguard against excessively large values
+        if ($perPage > 50) {
+            $perPage = 50;
+        }
+
+        $query = ProductVariant::with('product');
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+            $query->where('sku', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('product', function ($q) use ($searchTerm) {
+                      $q->where('name', 'like', "%{$searchTerm}%");
+                  });
+        }
+
+        // Exclude variants that are already in the cart
+        if ($request->has('exclude_ids') && is_array($request->input('exclude_ids'))) {
+            $query->whereNotIn('id', $request->input('exclude_ids'));
+        }
+
+        $variants = $query->paginate($perPage);
+
+        return response()->json([
+            'html' => view('orders._variant_search_results', compact('variants'))->render()
+        ]);
     }
 
     public function storeNewOrder(Request $request, OrderService $orderService)
     {
         $request->validate([
-            'variant_id' => 'required|exists:product_variants,id',
+            'items' => 'required|array|min:1',
+            'items.*.variant_id' => 'required|exists:product_variants,id',
+            'items.*.quantity' => 'required|integer|min:1',
             'customer_id' => 'required|exists:customers,id',
-            'quantity' => 'required|integer|min:1',
         ]);
 
-        $variant = ProductVariant::find($request->input('variant_id'));
-        $quantity = $request->input('quantity');
-
-        if ($variant->stock < $quantity) {
-            return back()->with('error', 'Not enough stock for this variant.');
+        $orderItems = [];
+        foreach ($request->input('items') as $item) {
+            $variant = ProductVariant::find($item['variant_id']);
+            if ($variant->stock < $item['quantity']) {
+                return back()->with('error', "Not enough stock for variant {$variant->sku}. Only {$variant->stock} left.")
+                             ->withInput();
+            }
+            $orderItems[] = [
+                'id' => $item['variant_id'],
+                'quantity' => $item['quantity']
+            ];
         }
 
         $order = $orderService->createOrder([
@@ -55,11 +115,12 @@ class OrderController extends Controller
             'status' => OrderStatus::Pending->value,
             'payment_status' => PaymentStatus::Unpaid->value,
             'delivery_status' => DeliveryStatus::NotShipped->value,
-            'total_amount' => 0, // Will be calculated by the service
-        ], [['id' => $variant->id, 'quantity' => $quantity]]);
+            'total_amount' => 0, // Service will calculate
+        ], $orderItems);
 
         return redirect()->route('orders.show', $order)->with('success', 'Order created successfully.');
     }
+
     public function test(Request $request)
     {
         echo "oks";
