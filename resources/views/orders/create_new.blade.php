@@ -86,6 +86,7 @@
                 <div class="input-group">
                     <input type="text" id="variant-search" class="form-control" placeholder="Tìm sản phẩm theo tên hoặc SKU...">
                     <button class="btn btn-outline-secondary" type="button" id="variant-search-button">Tìm</button>
+                    <button class="btn btn-outline-primary" type="button" id="load-all-variants-button">Load all sản phẩm</button>
                 </div>
                 <div id="variant-search-results" class="mt-3"></div>
             </div>
@@ -153,9 +154,12 @@ $(document).ready(function() {
     const cartContainer = $('#cart-items-container');
     const variantSearchInput = $('#variant-search');
     const variantSearchButton = $('#variant-search-button');
+    const loadAllVariantsButton = $('#load-all-variants-button');
     const variantSearchResults = $('#variant-search-results');
     const variantAjaxUrl = "{{ route('orders.ajax_variant_search') }}";
+    const loadAllVariantsAjaxUrl = "{{ route('orders.ajax_load_all_variants') }}";
     let cartItemIndex = 1;
+    let lastVariantAction = null; // 'search' or 'loadAll'
 
     function getCartItemIds() {
         const ids = [];
@@ -193,6 +197,7 @@ $(document).ready(function() {
     }
 
     function performVariantSearch(page = 1) {
+        lastVariantAction = 'search';
         const query = variantSearchInput.val();
         const perPage = $('#per-page-select').val() || 5;
         if (query.length < 2) { variantSearchResults.empty(); return; }
@@ -201,6 +206,10 @@ $(document).ready(function() {
 
     variantSearchInput.on('keyup', function() { clearTimeout(variantSearchTimeout); variantSearchTimeout = setTimeout(function() { performVariantSearch(1); }, 300); });
     variantSearchButton.on('click', function() { performVariantSearch(1); });
+    loadAllVariantsButton.on('click', function() {
+        lastVariantAction = 'loadAll';
+        fetch_variant_data(loadAllVariantsAjaxUrl, { page: 1, per_page: 10 });
+    });
     
     variantSearchResults.on('click', '.pagination a', function(e) { 
         e.preventDefault(); 
@@ -217,8 +226,12 @@ $(document).ready(function() {
 
     variantSearchResults.on('change', '#per-page-select', function() {
         const perPage = $(this).val();
-        const query = variantSearchInput.val();
-        fetch_variant_data(variantAjaxUrl, { page: 1, search: query, per_page: perPage });
+        if (lastVariantAction === 'search') {
+            const query = variantSearchInput.val();
+            fetch_variant_data(variantAjaxUrl, { page: 1, search: query, per_page: perPage });
+        } else if (lastVariantAction === 'loadAll') {
+            fetch_variant_data(loadAllVariantsAjaxUrl, { page: 1, per_page: perPage });
+        }
     });
 
     variantSearchResults.on('click', '.add-variant-to-cart', function() {
@@ -240,17 +253,26 @@ $(document).ready(function() {
         cartContainer.append(newRow);
         cartItemIndex++;
         updateCartTotal();
-        // After adding, re-run the search to refresh the list with the added item now excluded.
-        performVariantSearch(1);
+
+        // After adding, re-run the search/load to refresh the list
+        if (lastVariantAction === 'search') {
+            performVariantSearch(1);
+        } else if (lastVariantAction === 'loadAll') {
+            fetch_variant_data(loadAllVariantsAjaxUrl, { page: 1, per_page: 10 });
+        }
     });
 
     cartContainer.on('click', '.remove-cart-item', function() {
         if ($('.cart-item-row').length <= 1) { alert('Không thể xóa sản phẩm cuối cùng.'); return; }
         $(this).closest('tr').remove();
         updateCartTotal();
-        // After removing, re-run the search in case the user wants to add the item back.
-        if (variantSearchInput.val().length >= 2) {
-            performVariantSearch(1);
+        // After removing, re-run the search/load in case the user wants to add the item back.
+        if (lastVariantAction === 'search') {
+            if (variantSearchInput.val().length >= 2) {
+                performVariantSearch(1);
+            }
+        } else if (lastVariantAction === 'loadAll') {
+            fetch_variant_data(loadAllVariantsAjaxUrl, { page: 1, per_page: 10 });
         }
     });
 

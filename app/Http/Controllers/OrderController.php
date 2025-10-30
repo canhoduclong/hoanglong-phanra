@@ -87,6 +87,26 @@ class OrderController extends Controller
         ]);
     }
 
+    public function ajaxLoadAllVariants(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        if ($perPage > 50) {
+            $perPage = 50;
+        }
+
+        $query = ProductVariant::with('product');
+
+        if ($request->has('exclude_ids') && is_array($request->input('exclude_ids'))) {
+            $query->whereNotIn('id', $request->input('exclude_ids'));
+        }
+
+        $variants = $query->paginate($perPage);
+
+        return response()->json([
+            'html' => view('orders._variant_search_results', compact('variants'))->render()
+        ]);
+    }
+
     public function storeNewOrder(Request $request, OrderService $orderService)
     {
         $request->validate([
